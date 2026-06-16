@@ -214,3 +214,30 @@ def get_quiz_questions(topic: Topic) -> list[QuizQuestion]:
         if s.heading.lower().strip() == "knowledge check":
             return _parse_quiz_questions(s)
     return []
+
+
+def search_content(query: str, phases: list[Phase]) -> list[dict]:
+    """Search across all topics for a query string. Case-insensitive."""
+    results: list[dict] = []
+    q = query.lower()
+    for p in phases:
+        for t in p.topics:
+            text = t.filepath.read_text(encoding="utf-8")
+            lines = text.splitlines()
+            matches = [(i + 1, line.strip()) for i, line in enumerate(lines) if q in line.lower()]
+            if matches:
+                results.append({
+                    "phase": p.number,
+                    "topic": t.number,
+                    "title": t.title,
+                    "matches": matches[:20],  # cap per topic
+                })
+    return results
+
+
+def get_revision_notes(topic: Topic) -> Optional[str]:
+    """Extract the Revision notes section from a topic."""
+    for s in topic.sections:
+        if s.heading.lower().strip() == "revision notes":
+            return s.content
+    return None

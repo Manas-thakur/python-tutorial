@@ -9,8 +9,10 @@ description = "Interactive CLI-based Python tutorial with quizzes and progress t
 readme = "README.md"
 license = {text = "MIT"}
 authors = [
-    {name = "Python Roadmap"}
+    {name = "Manas-thakur"}
 ]
+repository = {url = "https://github.com/Manas-thakur/python-tutorial"}
+homepage = "https://github.com/Manas-thakur/python-tutorial"
 requires-python = ">=3.10"
 dependencies = [
     "typer>=0.9.0",

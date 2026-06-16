@@ -104,16 +104,28 @@ def show_topic_summary(topic: Topic):
     console.print(f"[dim]{topic.filepath.name}[/]")
 
 
-def render_completion(phase_num: int, topic_num: int, title: str):
+def render_completion(phase_num: int, topic_num: int, title: str, badges: list[dict] = None):
+    panel_content = f"[bold green]✅ Topic Complete![/]\n\n[bold]{title}[/]\n\nProgress has been saved."
+    if badges:
+        earned = [b for b in badges if b["name"] in [x["name"] for x in (badges or [])]]
+        if earned:
+            badge_line = "  ".join(f"{b['icon']} {b['name']}" for b in badges[-3:])
+            panel_content += f"\n\n[bold yellow]Badges earned:[/]\n{badge_line}"
     console.print()
     console.print(Panel(
-        f"[bold green]✅ Topic Complete![/]\n\n"
-        f"[bold]{title}[/]\n\n"
-        f"Progress has been saved.",
+        panel_content,
         title="🎉 Congratulations",
         border_style="green",
     ))
     console.print()
+
+
+def render_badges(badges: list[dict]):
+    if not badges:
+        return
+    console.print("\n[bold cyan]🏆 Your Badges[/]")
+    for b in badges:
+        console.print(f"  {b['icon']} [bold]{b['name']}[/] — [dim]{b['desc']}[/]")
 
 
 def render_quiz_result(correct: int, total: int):
