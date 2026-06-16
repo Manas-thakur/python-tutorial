@@ -1,0 +1,41 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "python-tutorial"
+version = "1.0.0"
+description = "Interactive CLI-based Python tutorial with quizzes and progress tracking"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "Python Roadmap"}
+]
+requires-python = ">=3.10"
+dependencies = [
+    "typer>=0.9.0",
+    "rich>=13.0.0",
+]
+keywords = ["python", "tutorial", "cli", "learning", "interactive"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Intended Audience :: Education",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Education",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+[project.scripts]
+python-tutorial = "python_tutorial.cli:app"
+pytut = "python_tutorial.cli:app"
+
+[tool.hatch.build.targets.wheel]
+packages = ["python_tutorial"]
+
+[tool.hatch.build.targets.sdist]
+include = ["python_tutorial/**"]
