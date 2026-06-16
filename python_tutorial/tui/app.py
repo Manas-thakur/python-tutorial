@@ -42,16 +42,18 @@ class TutorialApp(App):
     CSS = """
     MainContainer {
         layout: horizontal;
-        height: 100%;
+        height: 1fr;
     }
 
     MainContainer > Sidebar {
         width: 25%;
+        height: 100%;
         border: solid $primary;
     }
 
     MainContainer > ContentPanel {
         width: 40%;
+        height: 100%;
         border: solid $secondary;
     }
 
@@ -65,6 +67,7 @@ class TutorialApp(App):
 
     MainContainer > CodePanel {
         width: 35%;
+        height: 100%;
         border: solid $accent;
     }
 
