@@ -131,7 +131,7 @@ class TutorialApp(App):
             ConfirmScreen("Reset Progress", "This will delete ALL progress. Are you sure?", on_confirm)
         )
 
-    def on_sidebar_topic_selected(self, message) -> None:
+    def on_topic_selected(self, message) -> None:
         phase = message.phase
         topic = message.topic
         self.current_phase = phase
