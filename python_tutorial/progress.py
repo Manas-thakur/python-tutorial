@@ -198,6 +198,64 @@ class ProgressTracker:
     def is_challenge_done(self, phase: int, topic: int, idx: int = 0) -> bool:
         return self.data.get("_challenges", {}).get(f"{phase}.{topic}.{idx}", False)
 
+    # ── Mastery tracking ──
+
+    def record_quiz_attempt(self, phase: int, topic: int, correct: int, total: int):
+        """Record a quiz/flashcard session for a topic."""
+        key = f"_mastery"
+        mastery = self.data.setdefault(key, {})
+        topic_key = f"{phase}.{topic}"
+        if topic_key not in mastery:
+            mastery[topic_key] = {"attempts": [], "last_reviewed": None}
+        mastery[topic_key]["attempts"].append({"correct": correct, "total": total})
+        mastery[topic_key]["last_reviewed"] = str(__import__("datetime").datetime.now())
+        self._save()
+
+    def get_mastery_score(self, phase: int, topic: int) -> float:
+        """Return mastery score 0–1 for a topic. Based on success rate and recency."""
+        mastery = self.data.get("_mastery", {})
+        topic_key = f"{phase}.{topic}"
+        if topic_key not in mastery:
+            return 0.0  # Not attempted yet
+
+        attempts = mastery[topic_key].get("attempts", [])
+        if not attempts:
+            return 0.0
+
+        # Success rate (0–1)
+        total_correct = sum(a["correct"] for a in attempts)
+        total_questions = sum(a["total"] for a in attempts)
+        if total_questions == 0:
+            return 0.0
+        success_rate = total_correct / total_questions
+
+        # Recency factor: decay over time (older reviews count less)
+        import datetime
+        last_reviewed = mastery[topic_key].get("last_reviewed")
+        if last_reviewed:
+            try:
+                last_date = datetime.datetime.fromisoformat(last_reviewed)
+                days_ago = (datetime.datetime.now() - last_date).days
+                recency = max(0.3, 1.0 - (days_ago * 0.05))  # Decay ~5% per day, floor at 0.3
+            except (ValueError, TypeError):
+                recency = 1.0
+        else:
+            recency = 1.0
+
+        return success_rate * recency
+
+    def get_topic_mastery_level(self, phase: int, topic: int) -> str:
+        """Return mastery level: 'weak', 'medium', 'strong', or 'not_attempted'."""
+        score = self.get_mastery_score(phase, topic)
+        if score == 0.0:  # No mastery attempts recorded
+            return "not_attempted"
+        elif score >= 0.8:
+            return "strong"
+        elif score >= 0.5:
+            return "medium"
+        else:
+            return "weak"
+
     # ── Reset ──
 
     def reset(self):

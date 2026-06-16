@@ -6,6 +6,108 @@ from textual.containers import Container, Vertical, Horizontal
 from textual.app import ComposeResult
 
 from ..content import discover_phases, get_quiz_questions, search_content
+from ..tutor import AdaptiveTutor
+
+
+class TutorDashboardScreen(Screen):
+    """Adaptive tutor dashboard showing mastery map and recommendations."""
+
+    def __init__(self, progress, app_ref=None, **kwargs):
+        super().__init__(**kwargs)
+        self.progress = progress
+        self.app_ref = app_ref
+        self.tutor = AdaptiveTutor(progress)
+        self.recommendations = []
+
+    def compose(self) -> ComposeResult:
+        yield Static("", id="tutor-header")
+        yield RichLog(id="tutor-content", highlight=True, markup=True)
+        yield Vertical(id="tutor-actions")
+        yield Button("Close", id="close-tutor", variant="primary")
+
+    def on_mount(self) -> None:
+        self.recommendations = self.tutor.get_next_recommendations(limit=5)
+        self._render_dashboard()
+
+    def _render_dashboard(self) -> None:
+        """Render the full tutor dashboard."""
+        header = self.query_one("#tutor-header", Static)
+        header.update("[bold cyan]Adaptive Learning Guide[/]")
+
+        log = self.query_one("#tutor-content", RichLog)
+        log.clear()
+
+        # Stats
+        stats = self.tutor.get_overall_stats()
+        log.write(
+            f"[bold]Overall Progress[/]\n"
+            f"  {stats['completed']}/{stats['total_topics']} topics "
+            f"({stats['completion_pct']:.0f}%)\n"
+            f"  [green]Strong[/]: {stats['strong']}  [yellow]Weak[/]: {stats['weak']}\n"
+            f"  Level {stats['level']} | {stats['xp']} XP | Streak: {stats['streak']}d\n"
+        )
+
+        # Recommendations
+        log.write("\n[bold yellow]Recommended Next Actions:[/]\n")
+        if self.recommendations:
+            for i, rec in enumerate(self.recommendations, 1):
+                icon = {
+                    "learn": "📚",
+                    "quiz": "❓",
+                    "flashcard": "🎴",
+                    "challenge": "⚡",
+                    "review": "🔄",
+                }.get(rec.action_type, "•")
+                log.write(
+                    f"  {i}. {icon} [bold]P{rec.phase}.{rec.topic}[/] "
+                    f"({rec.action_type}) - {rec.reason}\n"
+                )
+        else:
+            log.write("  No recommendations yet. Keep learning!\n")
+
+        # Phase mastery map
+        log.write("\n[bold]Phase Mastery Map:[/]\n")
+        for phase_num in range(1, 8):
+            summary = self.tutor.get_phase_summary(phase_num)
+            if not summary:
+                continue
+            lock_icon = "" if summary["unlocked"] else " [red]🔒[/]"
+            bar = self._make_progress_bar(
+                summary["completed"], summary["total"], 15
+            )
+            log.write(
+                f"  {summary['title']}{lock_icon}\n"
+                f"    {bar} {summary['completed']}/{summary['total']}\n"
+            )
+
+        # Render action buttons
+        actions = self.query_one("#tutor-actions", Vertical)
+        actions.remove_children()
+        if self.recommendations:
+            rec = self.recommendations[0]
+            actions.mount(
+                Button(
+                    f"Go to P{rec.phase}.{rec.topic}",
+                    id="tutor-go-recommended",
+                    variant="primary",
+                )
+            )
+
+    def _make_progress_bar(self, completed: int, total: int, width: int = 15) -> str:
+        """Create a simple progress bar."""
+        if total == 0:
+            filled = width
+        else:
+            filled = int((completed / total) * width)
+        empty = width - filled
+        return f"[green]{'█' * filled}[/][dim]{'░' * empty}[/]"
+
+    def on_button_pressed(self, event) -> None:
+        if event.button.id == "close-tutor":
+            self.app.pop_screen()
+        elif event.button.id == "tutor-go-recommended" and self.recommendations:
+            rec = self.recommendations[0]
+            self.app.pop_screen()
 
 
 class FlashcardScreen(Screen):
@@ -83,6 +185,10 @@ class FlashcardScreen(Screen):
         if total > 0:
             percentage = (self.correct / total) * 100
             feedback.write(f"[bold]{percentage:.0f}%[/]")
+            # Record this flashcard session for tutor mastery tracking
+            if self.cards:
+                phase, topic, _, _ = self.cards[0]
+                self.progress.record_quiz_attempt(phase, topic, self.correct, total)
         self.query_one("#flashcard-progress", Static).update("")
 
     def on_button_pressed(self, event) -> None:
@@ -181,6 +287,8 @@ class QuizScreen(Screen):
         if total > 0:
             pct = (self.correct / total) * 100
             fb.write(f"[bold]{pct:.0f}%[/]")
+            # Record this quiz session for tutor mastery tracking
+            self.progress.record_quiz_attempt(self.phase.number, 0, self.correct, total)
         self.query_one("#quiz-progress", Static).update("")
 
     def on_button_pressed(self, event) -> None:

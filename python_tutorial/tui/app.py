@@ -9,7 +9,7 @@ from .sidebar import Sidebar
 from .content_panel import ContentPanel
 from .code_panel import CodePanel
 from .status_bar import TutorialStatusBar
-from .screens import FlashcardScreen, QuizScreen, SearchScreen
+from .screens import FlashcardScreen, QuizScreen, SearchScreen, TutorDashboardScreen
 
 
 class ConfirmScreen(Screen):
@@ -143,8 +143,9 @@ class TutorialApp(App):
         Binding("f5", "run_code", "Run", show=True),
         Binding("ctrl+p", "search", "Search", show=True),
         Binding("ctrl+q", "quiz", "Quiz", show=True),
-        Binding("ctrl+b", "toggle_sidebar", "Sidebar", show=True),
         Binding("ctrl+f", "flashcards", "Flashcards", show=True),
+        Binding("ctrl+t", "tutor", "Tutor", show=True),
+        Binding("ctrl+b", "toggle_sidebar", "Sidebar", show=True),
         Binding("c", "toggle_content_panel", "Contents", show=True),
         Binding("r", "reset_progress", "Reset", show=False),
     ]
@@ -207,6 +208,9 @@ class TutorialApp(App):
 
     def action_flashcards(self) -> None:
         self.push_screen(FlashcardScreen(self.progress, self.current_phase))
+
+    def action_tutor(self) -> None:
+        self.push_screen(TutorDashboardScreen(self.progress, self))
 
     def action_reset_progress(self) -> None:
         def on_confirm(confirmed: bool):

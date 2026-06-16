@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "python-tutorial"
+name = "pytut"
 version = "2.0.0"
 description = "Interactive CLI-based Python tutorial with quizzes and progress tracking"
 readme = "README.md"
