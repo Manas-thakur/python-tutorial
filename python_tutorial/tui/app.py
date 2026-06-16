@@ -55,9 +55,12 @@ class TutorialApp(App):
         border: solid $secondary;
     }
 
-    ContentPanel > Markdown {
+    ContentPanel > #section-body {
         height: 1fr;
-        overflow-y: auto;
+    }
+
+    ContentPanel > #section-body > Markdown {
+        height: auto;
     }
 
     MainContainer > CodePanel {
