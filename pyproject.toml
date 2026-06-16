@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "python-tutorial"
-version = "1.2.0"
+version = "2.0.0"
 description = "Interactive CLI-based Python tutorial with quizzes and progress tracking"
 readme = "README.md"
 license = {text = "MIT"}
@@ -17,6 +17,7 @@ requires-python = ">=3.10"
 dependencies = [
     "typer>=0.9.0",
     "rich>=13.0.0",
+    "textual>=1.0.0",
 ]
 keywords = ["python", "tutorial", "cli", "learning", "interactive"]
 classifiers = [
@@ -33,8 +34,9 @@ classifiers = [
 ]
 
 [project.scripts]
-python-tutorial = "python_tutorial.cli:app"
-pytut = "python_tutorial.cli:app"
+python-tutorial = "python_tutorial.tui.app:main"
+pytut = "python_tutorial.tui.app:main"
+pytut-cli = "python_tutorial.cli:app"
 
 [tool.hatch.build.targets.wheel]
 packages = ["python_tutorial"]

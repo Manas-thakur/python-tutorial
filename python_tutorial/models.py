@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Iterator, Tuple, Union
 
 
 @dataclass
@@ -26,6 +27,12 @@ class Phase:
     title: str
     path: Path
     topics: list[Topic] = field(default_factory=list)
+
+    def __rich_repr__(self) -> Iterator[Union[str, Tuple[str, int]]]:
+        yield "number", self.number
+        yield "title", self.title
+        yield "label", self.label
+        yield "topic_count", len(self.topics)
 
     @property
     def label(self) -> str:

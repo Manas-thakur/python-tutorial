@@ -282,18 +282,51 @@ def _extract_and_run(content: str):
     blocks += _re.findall(r"```\n(.*?)```", content, _re.DOTALL)
     if not blocks:
         return
-    code = blocks[0].strip()
-    if not code:
+    original = blocks[0].strip()
+    if not original:
         return
+
+    console.print("\n[dim]--- Example code ---[/]")
+    console.print(Syntax(original, "python", theme="monokai"))
+
+    choice = Prompt.ask(
+        "[dim]Run as-is[/dim] [bold](r)[/bold][dim] or type it yourself[/dim] [bold](t)[/bold][dim]?[/dim]",
+        choices=["r", "t"],
+        default="r",
+    )
+
+    if choice == "r":
+        code = original
+    else:
+        console.print("\n[bold]Type the code yourself (type [red]done[/] on a new line when finished):[/]")
+        console.print("[dim]Type 'show' to see the example again[/]")
+        lines: list[str] = []
+        while True:
+            try:
+                raw = input("  >> ")
+            except EOFError:
+                break
+            if raw.strip().lower() == "done":
+                break
+            if raw.strip().lower() == "show":
+                console.print(Syntax(original, "python", theme="monokai"))
+                continue
+            lines.append(raw)
+        if not lines:
+            console.print("[dim]Skipped.[/]")
+            return
+        code = "\n".join(lines)
+
     from .sandbox import run_code
-    console.print(f"[dim]Running:[/]")
-    console.print(Syntax(code, "python", theme="monokai"))
     result = run_code(code)
     if result["stdout"]:
         console.print("[bold]Output:[/]")
         console.print(result["stdout"].rstrip())
     if result["stderr"]:
         console.print(f"[red]{result['stderr'].rstrip()}[/]")
+    if choice == "t" and code != original:
+        console.print("[dim]--- Original was ---[/]")
+        console.print(Syntax(original, "python", theme="monokai"))
 
 
 def run_coding_challenge(phase_num: int, topic_num: int, title: str):
