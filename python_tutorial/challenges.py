@@ -1,12 +1,3 @@
-"""Coding challenges mapped to each topic.
-
-Each challenge has:
-  - description: what the user needs to do
-  - template: starting code (user fills in the blanks)
-  - expected_output: the exact expected stdout (None = just practice)
-  - hint: hint if they're stuck
-"""
-
 from dataclasses import dataclass, field
 from typing import Optional
 
@@ -17,232 +8,609 @@ class Challenge:
     template: str
     expected_output: Optional[str] = None
     hint: str = ""
+    difficulty: str = "easy"  # easy | medium | hard
 
 
 CHALLENGES: dict[str, list[Challenge]] = {
-    # ── Phase 1: Fundamentals ──
+    # ══════════════════════════════════════════════════════════
+    # PHASE 1: PYTHON FUNDAMENTALS
+    # ══════════════════════════════════════════════════════════
     "1.1": [
-        Challenge(
-            description="Write a Python program that prints 'Hello, Python!' to the screen.",
-            template='# Write your code below\nprint("...")',
-            expected_output="Hello, Python!\n",
-            hint="Use print() with a string inside quotes.",
-        ),
-        Challenge(
-            description="Print your name on one line and your age on the next line.",
-            template='# Print name and age on separate lines\nprint("...")',
-            expected_output=None,
-            hint="Call print() twice, once for each value.",
-        ),
+        Challenge("Write a program that prints 'Hello, Python!' to the screen.",
+                  'print("...")', "Hello, Python!\n",
+                  "Use print() with a string inside quotes.", "easy"),
+        Challenge("Print your name on line 1 and your age on line 2.",
+                  '# Line 1: print your name\n# Line 2: print your age', None,
+                  "Call print() twice.", "easy"),
+        Challenge("Write a multi-line comment using triple quotes explaining what a variable is.",
+                  '"""\n...\n"""\nprint("Done")', "Done\n",
+                  "Triple quotes let you write across multiple lines.", "easy"),
     ],
     "1.2": [
-        Challenge(
-            description="Create two variables `a = 10` and `b = 20`. Print their sum.",
-            template="a = 10\nb = 20\n# Calculate and print the sum",
-            expected_output="30\n",
-            hint="Use print(a + b)",
-        ),
-        Challenge(
-            description="Convert the string '42' to an integer, add 8, and print the result.",
-            template='num_str = "42"\nnum_int = int(num_str)\n# Add 8 and print',
-            expected_output="50\n",
-            hint="num_int + 8 and then print the result.",
-        ),
+        Challenge("Create `a = 10` and `b = 20`. Print their sum.",
+                  "a = 10\nb = 20\n# print a + b", "30\n",
+                  "Use print(a + b)", "easy"),
+        Challenge("Convert '42' to int, add 8, print the result.",
+                  'num_str = "42"\nnum_int = int(num_str)\n# Add 8 and print', "50\n",
+                  "num_int + 8 then print.", "easy"),
+        Challenge("Swap two variables x=5, y=10 without using a third variable.",
+                  "x, y = 5, 10\n# Swap x and y\nprint(x, y)", "10 5\n",
+                  "Use tuple unpacking: x, y = y, x", "medium"),
+        Challenge("Check the type of each value in [42, 3.14, 'hello', True] and print them.",
+                  'values = [42, 3.14, "hello", True]\nfor v in values:\n    print(type(v).__name__)',
+                  "int\nfloat\nstr\nbool\n",
+                  "Use type(v).__name__ inside a for loop.", "medium"),
     ],
     "1.3": [
-        Challenge(
-            description="Print 'Even' if the number 7 is even, else print 'Odd'. Use the modulo operator %.",
-            template="num = 7\n# Check if even or odd and print",
-            expected_output="Odd\n",
-            hint="num % 2 == 0 means even.",
-        ),
+        Challenge("Print 'Even' if 7 is even, else 'Odd'. Use %.",
+                  "num = 7\n# Check even/odd", "Odd\n",
+                  "num % 2 == 0 means even.", "easy"),
+        Challenge("Check if a year is a leap year. A year is a leap year if divisible by 400, or divisible by 4 but not by 100.",
+                  "year = 2024\n# Check leap year and print 'Leap' or 'Not Leap'", "Leap\n",
+                  "(year % 400 == 0) or (year % 4 == 0 and year % 100 != 0)", "medium"),
+        Challenge("Print the result of (5 + 3) * 2 ** 3 // 4 % 3",
+                  "result = (5 + 3) * 2 ** 3 // 4 % 3\nprint(result)", "2\n",
+                  "Follow PEMDAS: parentheses → exponent → multiply → floor divide → mod.", "hard"),
     ],
     "1.4": [
-        Challenge(
-            description="Ask the user for their name and print a greeting using an f-string.",
-            template='name = input("What is your name? ")\n# Print "Hello, <name>!" using an f-string',
-            expected_output=None,
-            hint="Use f\"Hello, {name}!\"",
-        ),
+        Challenge("Ask for a name and print 'Hello, <name>!' using an f-string.",
+                  'name = input("Name? ")\nprint(f"...")', None,
+                  "f\"Hello, {name}!\"", "easy"),
+        Challenge("Ask for a number and print it squared.",
+                  'num = int(input("Enter a number: "))\n# Print the square', None,
+                  "print(f\"{num} squared is {num**2}\")", "easy"),
+        Challenge("Print a multiplication table header: '5 x 1 = 5' up to '5 x 10 = 50' using print() with end parameter.",
+                  "for i in range(1, 11):\n    print(f'5 x {i} = {5*i}', end='  ' if i % 5 else '\\n')",
+                  "5 x 1 = 5  5 x 2 = 10  5 x 3 = 15  5 x 4 = 20  5 x 5 = 25\n5 x 6 = 30  5 x 7 = 35  5 x 8 = 40  5 x 9 = 45  5 x 10 = 50\n",
+                  "Use end='  ' normally and end='\\n' every 5th.", "medium"),
     ],
     "1.5": [
-        Challenge(
-            description="Reverse the string 'Python' using slicing and print it.",
-            template='word = "Python"\n# Reverse using slicing',
-            expected_output="nohtyP\n",
-            hint="word[::-1] reverses a string.",
-        ),
+        Challenge("Reverse 'Python' using slicing.",
+                  'word = "Python"\nprint(word[...])', "nohtyP\n",
+                  "word[::-1]", "easy"),
+        Challenge("Extract 'world' from 'hello world' using slicing.",
+                  'text = "hello world"\nprint(text[...])', "world\n",
+                  "text[6:]", "easy"),
+        Challenge("Count how many times 'a' appears in 'banana' using a string method.",
+                  'word = "banana"\nprint(word.count(...))', "3\n",
+                  ".count('a')", "easy"),
+        Challenge("Split 'apple,banana,grape' by comma and join back with ' | '.",
+                  'fruits = "apple,banana,grape"\nparts = fruits.split(",")\nprint(" | ".join(parts))',
+                  "apple | banana | grape\n",
+                  ".split(',') then ' | '.join()", "medium"),
+        Challenge("Check if 'racecar' is a palindrome (reads same forwards and backwards).",
+                  'word = "racecar"\nprint(word == word[...])', "True\n",
+                  "word == word[::-1]", "medium"),
     ],
     "1.6": [
-        Challenge(
-            description="Write a function `square(n)` that returns n squared. Call it with 7 and print the result.",
-            template="def square(n):\n    # Return n squared\n\nprint(square(7))",
-            expected_output="49\n",
-            hint="Use return n * n or return n ** 2.",
-        ),
+        Challenge("Write `square(n)` that returns n². Call it with 7.",
+                  "def square(n):\n    return ...\nprint(square(7))", "49\n",
+                  "return n * n", "easy"),
+        Challenge("Write `is_even(n)` that returns True if n is even.",
+                  "def is_even(n):\n    return ...\nprint(is_even(4), is_even(7))", "True False\n",
+                  "return n % 2 == 0", "easy"),
+        Challenge("Write `factorial(n)` that returns n! using recursion.",
+                  "def factorial(n):\n    if n <= 1:\n        return 1\n    return ...\nprint(factorial(5))", "120\n",
+                  "return n * factorial(n - 1)", "medium"),
+        Challenge("Use `map()` with a lambda to double every number in [1,2,3,4,5].",
+                  "nums = [1,2,3,4,5]\ndoubled = list(map(lambda x: ..., nums))\nprint(doubled)", "[2, 4, 6, 8, 10]\n",
+                  "lambda x: x * 2", "medium"),
     ],
     "1.7": [
-        Challenge(
-            description="Create a list of numbers [1, 2, 3, 4, 5]. Append 6, then print the sum of all elements.",
-            template="nums = [1, 2, 3, 4, 5]\n# Append 6 and print the sum",
-            expected_output="21\n",
-            hint="nums.append(6), then sum(nums).",
-        ),
+        Challenge("Create list [1,2,3,4,5], append 6, print sum.",
+                  "nums = [1,2,3,4,5]\nnums.append(...)\nprint(sum(nums))", "21\n",
+                  "nums.append(6)", "easy"),
+        Challenge("Merge two lists [1,2,3] and [4,5,6] and print the result.",
+                  "a = [1,2,3]\nb = [4,5,6]\nc = a + ...\nprint(c)", "[1, 2, 3, 4, 5, 6]\n",
+                  "a + b", "easy"),
+        Challenge("From list [3,1,4,1,5,9,2,6] find the unique elements in sorted order.",
+                  "nums = [3,1,4,1,5,9,2,6]\nunique = sorted(set(nums))\nprint(unique)", "[1, 2, 3, 4, 5, 6, 9]\n",
+                  "set(nums) removes duplicates, sorted() orders them.", "medium"),
+        Challenge("Create a dict with name, age, city. Print 'Name: <value>, Age: <value>' using .items().",
+                  "person = {'name': 'Alice', 'age': 30, 'city': 'NYC'}\nfor key, val in person.items():\n    print(f'{key}: {val}')",
+                  "name: Alice\nage: 30\ncity: NYC\n",
+                  "Use .items() to get key-value pairs.", "medium"),
+        Challenge("Find the most frequent element in [1,3,2,3,4,3,5] using max() with key.",
+                  "nums = [1,3,2,3,4,3,5]\nmost = max(set(nums), key=nums.count)\nprint(most)", "3\n",
+                  "max(set(nums), key=nums.count)", "hard"),
     ],
     "1.8": [
-        Challenge(
-            description="Print all even numbers from 1 to 20 using a for loop and range().",
-            template="# Print even numbers from 1 to 20\nfor i in range(...):",
-            expected_output="2\n4\n6\n8\n10\n12\n14\n16\n18\n20\n",
-            hint="range(2, 21, 2) gives even numbers.",
-        ),
+        Challenge("Print even numbers 1-20 using for and range().",
+                  "for i in range(..., ..., ...):\n    print(i)",
+                  "2\n4\n6\n8\n10\n12\n14\n16\n18\n20\n",
+                  "range(2, 21, 2)", "easy"),
+        Challenge("Print the first 10 Fibonacci numbers using a while loop.",
+                  "a, b = 0, 1\ncount = 0\nwhile count < 10:\n    print(a)\n    a, b = b, a + b\n    count += 1",
+                  "0\n1\n1\n2\n3\n5\n8\n13\n21\n34\n",
+                  "The template is already correct — just run it!", "medium"),
+        Challenge("Use a for-else loop to check if a number is prime. Print 'Prime' or 'Not prime'.",
+                  "num = 17\nfor i in range(2, num):\n    if num % i == 0:\n        print('Not prime')\n        break\nelse:\n    print('Prime')", "Prime\n",
+                  "The else block runs if the loop never hits break.", "medium"),
     ],
     "1.9": [
-        Challenge(
-            description="Use a list comprehension to create a list of squares for numbers 1 through 10. Print the result.",
-            template="squares = [x**2 for x in range(...)]\nprint(squares)",
-            expected_output="[1, 4, 9, 16, 25, 36, 49, 64, 81, 100]\n",
-            hint="range(1, 11) gives numbers 1 to 10.",
-        ),
+        Challenge("List comp: squares of 1-10.",
+                  "squares = [x**2 for x in range(...)]\nprint(squares)",
+                  "[1, 4, 9, 16, 25, 36, 49, 64, 81, 100]\n",
+                  "range(1, 11)", "easy"),
+        Challenge("Dict comp: create {1:1, 2:4, 3:9, 4:16, 5:25}.",
+                  "squares = {x: x**2 for x in range(1, 6)}\nprint(squares)",
+                  "{1: 1, 2: 4, 3: 9, 4: 16, 5: 25}\n",
+                  "Use {x: x**2 for x in range(1, 6)}", "easy"),
+        Challenge("List comp with if: even squares from 1-10 (square only even numbers).",
+                  "evens_squared = [x**2 for x in range(1, 11) if x % 2 == 0]\nprint(evens_squared)",
+                  "[4, 16, 36, 64, 100]\n",
+                  "Add 'if x % 2 == 0' at the end of the comprehension.", "medium"),
+        Challenge("Nested list comp: flatten [[1,2],[3,4],[5,6]] into [1,2,3,4,5,6].",
+                  "matrix = [[1,2],[3,4],[5,6]]\nflat = [num for row in matrix for num in row]\nprint(flat)",
+                  "[1, 2, 3, 4, 5, 6]\n",
+                  "for row in matrix, then for num in row — left to right.", "medium"),
     ],
     "1.10": [
-        Challenge(
-            description="Write 'Hello, File!' to a file named 'test.txt', then read and print its content.",
-            template='with open("test.txt", "w") as f:\n    f.write("...")\n\nwith open("test.txt", "r") as f:\n    print(f.read())',
-            expected_output="Hello, File!\n",
-            hint="Write the string 'Hello, File!' to the file.",
-        ),
+        Challenge("Write 'Hello, File!' to test.txt, read it back.",
+                  'with open("test.txt", "w") as f:\n    f.write("...")\nwith open("test.txt", "r") as f:\n    print(f.read())',
+                  "Hello, File!\n",
+                  "f.write('Hello, File!')", "easy"),
+        Challenge("Append a line to a file without overwriting existing content.",
+                  'with open("test.txt", "a") as f:\n    f.write("Line 2\\n")\nwith open("test.txt", "r") as f:\n    print(f.read())', None,
+                  "Use mode 'a' instead of 'w'.", "medium"),
+        Challenge("Read a CSV file (simulated as string), parse and print each row's sum.",
+                  'import io\ndata = """1,2,3\n4,5,6\n7,8,9"""\nfor line in data.splitlines():\n    nums = [int(x) for x in line.split(",")]\n    print(sum(nums))',
+                  "6\n15\n24\n",
+                  ".split(',') on each line, convert to int, sum.", "medium"),
+        Challenge("Write a list of dicts to a JSON file, then load and print one field.",
+                  'import json\ndata = [{"name": "Alice", "score": 95}, {"name": "Bob", "score": 87}]\nwith open("scores.json", "w") as f:\n    json.dump(data, f)\nwith open("scores.json", "r") as f:\n    loaded = json.load(f)\nfor person in loaded:\n    print(person["name"])',
+                  "Alice\nBob\n",
+                  "json.dump() to write, json.load() to read.", "medium"),
     ],
-    # ── Phase 2: Core Python ──
+
+    # ══════════════════════════════════════════════════════════
+    # PHASE 2: CORE PYTHON
+    # ══════════════════════════════════════════════════════════
     "2.1": [
-        Challenge(
-            description="Write a program that handles division by zero. Ask the user for two numbers, divide them, and print the result. If division by zero occurs, print 'Cannot divide by zero!'",
-            template="try:\n    a = int(input('Enter a: '))\n    b = int(input('Enter b: '))\n    # Divide and print\nexcept ZeroDivisionError:\n    # Handle error",
-            expected_output=None,
-            hint="Use ZeroDivisionError in the except block.",
-        ),
+        Challenge("Handle division by zero with try/except.",
+                  "try:\n    a = 10\n    b = 0\n    result = a / b\n    print(result)\nexcept ZeroDivisionError:\n    print('Cannot divide by zero')",
+                  "Cannot divide by zero\n",
+                  "Catch ZeroDivisionError.", "easy"),
+        Challenge("Use try/except/else/finally. Try converting input to int.",
+                  'try:\n    val = int("hello")\nexcept ValueError:\n    print("Invalid int")\nelse:\n    print("Valid:", val)\nfinally:\n    print("Done")',
+                  "Invalid int\nDone\n",
+                  "'hello' can't be converted — catches ValueError.", "medium"),
+        Challenge("Create and raise a custom exception `NegativeError` for negative numbers.",
+                  "class NegativeError(Exception):\n    pass\n\ndef check_positive(n):\n    if n < 0:\n        raise NegativeError('No negatives!')\n    return n\n\ntry:\n    print(check_positive(-5))\nexcept NegativeError as e:\n    print(e)",
+                  "No negatives!\n",
+                  "Raise NegativeError inside the if block.", "medium"),
+    ],
+    "2.2": [
+        Challenge("Import math and print pi.",
+                  "import math\nprint(math.pi)", "3.141592653589793\n",
+                  "import math then math.pi", "easy"),
+        Challenge("Import sqrt from math and print sqrt of 144.",
+                  "from math import sqrt\nprint(sqrt(144))", "12.0\n",
+                  "from math import sqrt", "easy"),
+        Challenge("Create a module inline using __import__ and aliasing (mock). Write a function and import it via dynamic import.",
+                  "import importlib.util\ncode = 'def greet(): return \"Hi\"'\nwith open('mymod.py', 'w') as f:\n    f.write(code)\nimport mymod\nprint(mymod.greet())", "Hi\n",
+          "Write a .py file then import it.", "hard"),
+    ],
+    "2.3": [
+        Challenge("Pip install a package (simulated) — just import json and print its location.",
+                  "import json\nprint(json.__name__)", "json\n",
+                  "json is built-in — just import and print.", "easy"),
+        Challenge("Create a package structure in code: create a temp dir with __init__.py and import from it.",
+                  'import tempfile, os, sys\nwith tempfile.TemporaryDirectory() as d:\n    pkg = os.path.join(d, "mypkg")\n    os.makedirs(pkg)\n    with open(os.path.join(pkg, "__init__.py"), "w") as f:\n        f.write("x = 42")\n    sys.path.insert(0, d)\n    import mypkg\n    print(mypkg.x)',
+                  "42\n",
+                  "Create __init__.py with x = 42, then import mypkg.", "hard"),
+    ],
+    "2.4": [
+        Challenge("Simulate virtual env: print sys.prefix and sys.base_prefix to see the difference.",
+                  "import sys\nprint('Env:', sys.prefix != sys.base_prefix)",
+                  "Env: False\n",
+          "sys.prefix is the current env, sys.base_prefix is the original Python install.", "medium"),
+        Challenge("Generate a requirements.txt format string and print it.",
+                  'pkgs = ["requests==2.28.0", "numpy==1.24.0", "pandas==1.5.0"]\nfor p in pkgs:\n    print(p)',
+                  "requests==2.28.0\nnumpy==1.24.0\npandas==1.5.0\n",
+                  "Just print each string in the list.", "easy"),
     ],
     "2.5": [
-        Challenge(
-            description="Create a dictionary with name 'Alice' and age 30. Convert it to JSON and print it.",
-            template='import json\ndata = {"name": "Alice", "age": 30}\n# Convert to JSON string and print',
-            expected_output='{"name": "Alice", "age": 30}\n',
-            hint="Use json.dumps(data).",
-        ),
+        Challenge("Dict to JSON and print.",
+                  'import json\ndata = {"name": "Alice", "age": 30}\nprint(json.dumps(data))',
+                  '{"name": "Alice", "age": 30}\n',
+                  "json.dumps(data)", "easy"),
+        Challenge("JSON to dict, access a key.",
+                  'import json\njson_str = \'{"city": "London", "pop": 9}\'\ndata = json.loads(json_str)\nprint(data["city"])',
+                  "London\n",
+                  "json.loads(json_str)", "easy"),
+        Challenge("Pretty-print JSON with indent=2.",
+                  'import json\ndata = {"name": "Alice", "scores": [95, 87, 92]}\nprint(json.dumps(data, indent=2))',
+                  '{\n  "name": "Alice",\n  "scores": [\n    95,\n    87,\n    92\n  ]\n}\n',
+                  "json.dumps(data, indent=2)", "medium"),
     ],
     "2.6": [
-        Challenge(
-            description="Using pathlib, create a directory 'test_dir' and a file inside it named 'hello.txt'. Write 'Hello' to it.",
-            template="from pathlib import Path\np = Path('test_dir')\n# Create directory, create file, write to it",
-            expected_output=None,
-            hint="Use p.mkdir(), then Path('test_dir/hello.txt').write_text('...')",
-        ),
+        Challenge("Use pathlib to check if a file exists.",
+                  "from pathlib import Path\np = Path('test.txt')\np.touch()\nprint(p.exists())", "True\n",
+                  "p.touch() creates the file, then p.exists() returns True.", "easy"),
+        Challenge("Create a directory tree: parent/child/grandchild using pathlib.",
+                  "from pathlib import Path\np = Path('parent/child/grandchild')\np.mkdir(parents=True, exist_ok=True)\nprint(p.exists())", "True\n",
+                  "mkdir(parents=True) creates all intermediate directories.", "medium"),
+        Challenge("Find all .txt files in current directory using pathlib glob.",
+                  "from pathlib import Path\nfor f in Path('.').glob('*.txt'):\n    print(f.name)", None,
+          "Use Path('.').glob('*.txt')", "medium"),
     ],
-    # ── Phase 3: OOP ──
+    "2.7": [
+        Challenge("Set up basic logging to console.",
+                  "import logging\nlogging.basicConfig(level=logging.INFO)\nlogging.info('App started')\nlogging.warning('Low memory')\nlogging.error('Error occurred')",
+                  "INFO:root:App started\nWARNING:root:Low memory\nERROR:root:Error occurred\n",
+                  "basicConfig(level=logging.INFO) then call logging.info/warning/error.", "easy"),
+        Challenge("Log to a file with custom format including timestamp.",
+                  "import logging\nlogging.basicConfig(filename='app.log', level=logging.DEBUG,\n                    format='%(asctime)s - %(levelname)s - %(message)s')\nlogging.debug('Debug message')\nlogging.info('Info message')\nprint('Check app.log')", "Check app.log\n",
+                  "Set filename and format in basicConfig.", "medium"),
+    ],
+
+    # ══════════════════════════════════════════════════════════
+    # PHASE 3: OOP
+    # ══════════════════════════════════════════════════════════
     "3.1": [
-        Challenge(
-            description="Create a class `Car` with attributes `brand` and `year`. Create an instance and print its brand.",
-            template="class Car:\n    def __init__(self, brand, year):\n        self.brand = brand\n        self.year = year\n\nmy_car = Car('Toyota', 2020)\n# Print the brand",
-            expected_output="Toyota\n",
-            hint="Use print(my_car.brand).",
-        ),
+        Challenge("Create class Car with brand and year. Print brand.",
+                  "class Car:\n    def __init__(self, brand, year):\n        self.brand = brand\n        self.year = year\n\nmy_car = Car('Toyota', 2020)\nprint(my_car.brand)", "Toyota\n",
+                  "print(my_car.brand)", "easy"),
+        Challenge("Add a class attribute `wheels = 4` to Car and print it.",
+                  "class Car:\n    wheels = 4\n    def __init__(self, brand):\n        self.brand = brand\n\nprint(Car.wheels)\nprint(Car('Tesla').wheels)", "4\n4\n",
+                  "Define wheels = 4 at the class level.", "easy"),
+        Challenge("Create a `@staticmethod` that returns the current year.",
+                  "class Utils:\n    @staticmethod\n    def current_year():\n        import datetime\n        return datetime.date.today().year\n\nprint(Utils.current_year())", None,
+                  "Use @staticmethod and call via ClassName.method().", "medium"),
+    ],
+    "3.2": [
+        Challenge("Create Student class with name and subjects list. Default subjects to []. Use __init__.",
+                  "class Student:\n    def __init__(self, name, subjects=None):\n        self.name = name\n        self.subjects = subjects if subjects is not None else []\n\ns1 = Student('Alice')\ns2 = Student('Bob', ['Math'])\nprint(len(s1.subjects), len(s2.subjects))", "0 1\n",
+                  "Use a default of None, then assign [] if None.", "medium"),
+        Challenge("Use @classmethod as an alternative constructor that creates a Student from a comma-separated string.",
+                  "class Student:\n    def __init__(self, name, age):\n        self.name = name\n        self.age = age\n\n    @classmethod\n    def from_string(cls, data):\n        name, age = data.split(',')\n        return cls(name, int(age))\n\ns = Student.from_string('Alice,25')\nprint(s.name, s.age)", "Alice 25\n",
+          "@classmethod takes cls, not self. Use cls(...) to create.", "medium"),
+    ],
+    "3.3": [
+        Challenge("Create BankAccount with private __balance. Implement deposit() and get_balance().",
+                  "class BankAccount:\n    def __init__(self):\n        self.__balance = 0\n\n    def deposit(self, amount):\n        self.__balance += amount\n\n    def get_balance(self):\n        return self.__balance\n\nacc = BankAccount()\nacc.deposit(100)\nprint(acc.get_balance())", "100\n",
+                  "access private via getter method.", "medium"),
+        Challenge("Use @property to make balance readable but not settable directly.",
+                  "class BankAccount:\n    def __init__(self):\n        self._balance = 0\n\n    @property\n    def balance(self):\n        return self._balance\n\n    def deposit(self, amount):\n        self._balance += amount\n\nacc = BankAccount()\nacc.deposit(200)\nprint(acc.balance)", "200\n",
+          "@property decorator makes .balance() callable as .balance", "medium"),
     ],
     "3.4": [
-        Challenge(
-            description="Create a parent class `Animal` with a method `speak()`. Create a child class `Dog` that overrides `speak()`. Call speak on a Dog instance.",
-            template="class Animal:\n    def speak(self):\n        return '...'\n\nclass Dog(Animal):\n    def speak(self):\n        return '...'\n\n# Create Dog instance and call speak",
-            expected_output="Woof!\n",
-            hint="Make Dog.speak() return 'Woof!'.",
-        ),
+        Challenge("Create Animal -> Dog inheritance with speak().",
+                  "class Animal:\n    def speak(self):\n        return '...'\n\nclass Dog(Animal):\n    def speak(self):\n        return 'Woof!'\n\nd = Dog()\nprint(d.speak())", "Woof!\n",
+                  "Override speak() in Dog.", "easy"),
+        Challenge("Use super() to call parent __init__.",
+                  "class Vehicle:\n    def __init__(self, brand):\n        self.brand = brand\n\nclass Car(Vehicle):\n    def __init__(self, brand, model):\n        super().__init__(brand)\n        self.model = model\n\nc = Car('Toyota', 'Camry')\nprint(c.brand, c.model)", "Toyota Camry\n",
+                  "super().__init__(brand) calls parent constructor.", "medium"),
+        Challenge("Demonstrate MRO with multiple inheritance: class A, class B(A), class C(A), class D(B, C). Print D.__mro__.",
+                  "class A: pass\nclass B(A): pass\nclass C(A): pass\nclass D(B, C): pass\nfor cls in D.__mro__:\n    print(cls.__name__)",
+                  "D\nB\nC\nA\nobject\n",
+                  "D.__mro__ shows the method resolution order.", "hard"),
+    ],
+    "3.5": [
+        Challenge("Demonstrate duck typing: two classes with a `sound()` method.",
+                  "class Duck:\n    def sound(self): return 'Quack'\nclass Cat:\n    def sound(self): return 'Meow'\n\ndef make_sound(animal):\n    print(animal.sound())\n\nmake_sound(Duck())\nmake_sound(Cat())", "Quack\nMeow\n",
+                  "Both classes have sound() — Python doesn't care about the type.", "medium"),
+        Challenge("Override `+` for a custom class using __add__.",
+                  "class Point:\n    def __init__(self, x, y):\n        self.x = x\n        self.y = y\n    def __add__(self, other):\n        return Point(self.x + other.x, self.y + other.y)\n    def __repr__(self):\n        return f'Point({self.x}, {self.y})'\n\np1 = Point(1, 2)\np2 = Point(3, 4)\nprint(p1 + p2)", "Point(4, 6)\n",
+                  "__add__ lets you use + with custom objects.", "medium"),
+    ],
+    "3.6": [
+        Challenge("Create abstract class Shape with abstract method area().",
+                  "from abc import ABC, abstractmethod\n\nclass Shape(ABC):\n    @abstractmethod\n    def area(self): pass\n\nclass Circle(Shape):\n    def __init__(self, r):\n        self.r = r\n    def area(self):\n        return 3.14 * self.r ** 2\n\nc = Circle(5)\nprint(c.area())", "78.5\n",
+                  "Subclass must implement all abstract methods.", "medium"),
+        Challenge("Try to instantiate an abstract class (should fail).",
+                  "from abc import ABC, abstractmethod\nclass Shape(ABC):\n    @abstractmethod\n    def area(self): pass\n\ntry:\n    s = Shape()\n    print('Created')\nexcept TypeError as e:\n    print('Cannot instantiate')",
+                  "Cannot instantiate\n",
+                  "ABCs with abstractmethod cannot be instantiated.", "medium"),
     ],
     "3.7": [
-        Challenge(
-            description="Create a class `Book` with `__str__` returning 'Title by Author'. Create an instance and print it.",
-            template='class Book:\n    def __init__(self, title, author):\n        self.title = title\n        self.author = author\n\n    def __str__(self):\n        return f"..."\n\nbook = Book("1984", "George Orwell")\nprint(book)',
-            expected_output="1984 by George Orwell\n",
-            hint="Return f'{self.title} by {self.author}'.",
-        ),
+        Challenge("Implement __str__ for Book.",
+                  "class Book:\n    def __init__(self, title, author):\n        self.title = title\n        self.author = author\n    def __str__(self):\n        return f'{self.title} by {self.author}'\n\nb = Book('1984', 'George Orwell')\nprint(b)", "1984 by George Orwell\n",
+                  "__str__ is called by print().", "easy"),
+        Challenge("Implement __len__ for a Team class.",
+                  "class Team:\n    def __init__(self, members):\n        self.members = members\n    def __len__(self):\n        return len(self.members)\n\nt = Team(['Alice', 'Bob', 'Charlie'])\nprint(len(t))", "3\n",
+                  "__len__ is called by len().", "easy"),
+        Challenge("Make a class callable with __call__.",
+                  "class Multiplier:\n    def __init__(self, factor):\n        self.factor = factor\n    def __call__(self, x):\n        return x * self.factor\n\ndouble = Multiplier(2)\ntriple = Multiplier(3)\nprint(double(5), triple(5))", "10 15\n",
+                  "__call__ lets you call an instance like a function.", "medium"),
+        Challenge("Implement __eq__ and __lt__ for comparison.",
+                  "class Person:\n    def __init__(self, name, age):\n        self.name = name\n        self.age = age\n    def __eq__(self, other):\n        return self.age == other.age\n    def __lt__(self, other):\n        return self.age < other.age\n\np1 = Person('A', 25)\np2 = Person('B', 30)\nprint(p1 < p2)\nprint(p1 == p2)", "True\nFalse\n",
+                  "__eq__ for ==, __lt__ for <. sorted() uses these too.", "medium"),
     ],
-    # ── Phase 4: Intermediate ──
+
+    # ══════════════════════════════════════════════════════════
+    # PHASE 4: INTERMEDIATE PYTHON
+    # ══════════════════════════════════════════════════════════
+    "4.1": [
+        Challenge("Add type hints to a function that takes two ints and returns a str.",
+                  "def greet(age: int, name: str) -> str:\n    return f'{name} is {age} years old'\n\nresult = greet(25, 'Alice')\nprint(result)", "Alice is 25 years old\n",
+                  "Use '-> str' for return type.", "easy"),
+        Challenge("Use Optional type hint for a parameter that might be None.",
+                  "from typing import Optional\ndef say_hello(name: Optional[str] = None) -> str:\n    if name:\n        return f'Hello {name}'\n    return 'Hello World'\n\nprint(say_hello())\nprint(say_hello('Bob'))", "Hello World\nHello Bob\n",
+                  "Optional[str] means str or None.", "medium"),
+        Challenge("Use Union to accept int or float and return a float.",
+                  "from typing import Union\ndef double(x: Union[int, float]) -> float:\n    return float(x * 2)\n\nprint(double(5))\nprint(double(3.14))", "10.0\n6.28\n",
+                  "Union[int, float] accepts either type.", "medium"),
+    ],
     "4.2": [
-        Challenge(
-            description="Use map() with a lambda to convert a list of temperatures in Celsius [0, 20, 30, 40] to Fahrenheit. Formula: F = C * 9/5 + 32.",
-            template="celsius = [0, 20, 30, 40]\nfahrenheit = list(map(lambda c: ..., celsius))\nprint(fahrenheit)",
-            expected_output="[32.0, 68.0, 86.0, 104.0]\n",
-            hint="lambda c: c * 9/5 + 32",
-        ),
+        Challenge("Use map + lambda to double numbers.",
+                  "nums = [1,2,3,4,5]\ndoubled = list(map(lambda x: x * 2, nums))\nprint(doubled)", "[2, 4, 6, 8, 10]\n",
+                  "lambda x: x * 2", "easy"),
+        Challenge("Use filter + lambda to keep even numbers.",
+                  "nums = [1,2,3,4,5,6]\nevens = list(filter(lambda x: x % 2 == 0, nums))\nprint(evens)", "[2, 4, 6]\n",
+                  "lambda x: x % 2 == 0", "easy"),
+        Challenge("Sort strings by their length using sorted() with a key lambda.",
+                  "fruits = ['kiwi', 'apple', 'banana', 'cherry', 'date']\nsorted_fruits = sorted(fruits, key=lambda x: len(x))\nprint(sorted_fruits)", "['kiwi', 'date', 'apple', 'banana', 'cherry']\n",
+                  "key=lambda x: len(x)", "medium"),
+    ],
+    "4.3": [
+        Challenge("Write a function that accepts any number of positional args and returns their sum.",
+                  "def sum_all(*args):\n    return sum(args)\n\nprint(sum_all(1, 2, 3, 4, 5))", "15\n",
+                  "*args packs extra positional args into a tuple.", "easy"),
+        Challenge("Write a function that accepts any number of keyword args and prints key=value.",
+                  "def print_kwargs(**kwargs):\n    for k, v in kwargs.items():\n        print(f'{k}={v}')\n\nprint_kwargs(name='Alice', age=30, city='NYC')",
+                  "name=Alice\nage=30\ncity=NYC\n",
+                  "**kwargs packs keyword args into a dict.", "medium"),
+        Challenge("Combine *args and **kwargs in a wrapper function.",
+                  "def wrapper(*args, **kwargs):\n    print(f'args: {args}')\n    print(f'kwargs: {kwargs}')\n\nwrapper(1, 2, 3, name='Alice', age=30)",
+                  "args: (1, 2, 3)\nkwargs: {'name': 'Alice', 'age': 30}\n",
+                  "*args must come before **kwargs in the signature.", "medium"),
+    ],
+    "4.4": [
+        Challenge("Swap two variables using tuple unpacking.",
+                  "a, b = 5, 10\na, b = b, a\nprint(a, b)", "10 5\n",
+                  "a, b = b, a", "easy"),
+        Challenge("Unpack a list: first, *middle, last = [1,2,3,4,5].",
+                  "first, *middle, last = [1,2,3,4,5]\nprint(first, middle, last)", "1 [2, 3, 4] 5\n",
+                  "*middle captures everything between first and last.", "medium"),
+        Challenge("Merge two dicts using ** unpacking.",
+                  "d1 = {'a': 1, 'b': 2}\nd2 = {'c': 3, 'd': 4}\nmerged = {**d1, **d2}\nprint(merged)", "{'a': 1, 'b': 2, 'c': 3, 'd': 4}\n",
+                  "{**d1, **d2} merges dicts.", "medium"),
+    ],
+    "4.5": [
+        Challenge("Create a custom iterator that yields 1, 2, 3.",
+                  "class Count:\n    def __init__(self, limit):\n        self.limit = limit\n        self.n = 0\n    def __iter__(self):\n        return self\n    def __next__(self):\n        if self.n >= self.limit:\n            raise StopIteration\n        self.n += 1\n        return self.n\n\nfor i in Count(3):\n    print(i)", "1\n2\n3\n",
+                  "__iter__ returns self, __next__ raises StopIteration when done.", "medium"),
+        Challenge("Use iter() and next() manually on a list.",
+                  "nums = [10, 20, 30]\nit = iter(nums)\nprint(next(it))\nprint(next(it))\nprint(next(it))", "10\n20\n30\n",
+                  "iter() creates an iterator, next() advances it.", "easy"),
     ],
     "4.6": [
-        Challenge(
-            description="Write a generator function `countdown(n)` that yields numbers from n down to 1. Use it to print a countdown from 5.",
-            template="def countdown(n):\n    while n > 0:\n        yield n\n        n -= 1\n\nfor num in countdown(5):\n    ...",
-            expected_output="5\n4\n3\n2\n1\n",
-            hint="Print num inside the for loop.",
-        ),
+        Challenge("Countdown generator from 5 to 1.",
+                  "def countdown(n):\n    while n > 0:\n        yield n\n        n -= 1\n\nfor num in countdown(5):\n    print(num)", "5\n4\n3\n2\n1\n",
+                  "yield pauses the function, keeping state.", "easy"),
+        Challenge("Generator expression: sum of squares 1-10.",
+                  "total = sum(x**2 for x in range(1, 11))\nprint(total)", "385\n",
+                  "(x**2 for x in range(1, 11)) is a generator expression.", "medium"),
+        Challenge("Chain two generators using yield from.",
+                  "def gen1():\n    yield from ['a', 'b']\ndef gen2():\n    yield from ['c', 'd']\ndef combined():\n    yield from gen1()\n    yield from gen2()\n\nprint(list(combined()))", "['a', 'b', 'c', 'd']\n",
+                  "yield from delegates to another generator.", "medium"),
     ],
-    # ── Phase 5: Advanced ──
+    "4.7": [
+        Challenge("Create a dataclass Product with name, price, quantity.",
+                  "from dataclasses import dataclass\n\n@dataclass\nclass Product:\n    name: str\n    price: float\n    quantity: int = 1\n\np = Product('Laptop', 999.99)\nprint(p)", "Product(name='Laptop', price=999.99, quantity=1)\n",
+                  "@dataclass auto-generates __init__ and __repr__.", "easy"),
+        Challenge("Use frozen=True to make an immutable dataclass.",
+                  "from dataclasses import dataclass\n\n@dataclass(frozen=True)\nclass Point:\n    x: int\n    y: int\n\np = Point(3, 4)\ntry:\n    p.x = 5\n    print('Modified')\nexcept AttributeError:\n    print('Immutable')", "Immutable\n",
+                  "frozen=True prevents attribute modification.", "medium"),
+    ],
+    "4.8": [
+        Challenge("Create an Enum for days of the week and print Monday's value.",
+                  "from enum import Enum\n\nclass Day(Enum):\n    MONDAY = 1\n    TUESDAY = 2\n    WEDNESDAY = 3\n\nprint(Day.MONDAY.value)", "1\n",
+                  ".value returns the enum member's value.", "easy"),
+        Challenge("Use auto() to auto-assign values.",
+                  "from enum import Enum, auto\n\nclass Color(Enum):\n    RED = auto()\n    GREEN = auto()\n    BLUE = auto()\n\nprint( Color.GREEN.value)", "2\n",
+                  "auto() assigns 1, 2, 3... sequentially.", "easy"),
+        Challenge("Use @unique decorator to prevent duplicate values.",
+                  "from enum import Enum, unique\n\n@unique\nclass Status(Enum):\n    ACTIVE = 1\n    INACTIVE = 2\n\ntry:\n    class Bad(Enum):\n        A = 1\n        B = 1\n    print('Duplicates allowed')\nexcept ValueError:\n    print('Duplicate prevented')", "Duplicates allowed\n",
+                  "Without @unique, duplicates are allowed. With @unique, ValueError is raised.", "medium"),
+    ],
+
+    # ══════════════════════════════════════════════════════════
+    # PHASE 5: ADVANCED PYTHON
+    # ══════════════════════════════════════════════════════════
     "5.1": [
-        Challenge(
-            description="Write a decorator `uppercase` that converts the return value of a function to uppercase. Apply it to a function `greet()` that returns 'hello world'.",
-            template="def uppercase(func):\n    def wrapper():\n        result = func()\n        return result.upper()\n    return wrapper\n\n@uppercase\ndef greet():\n    return 'hello world'\n\nprint(greet())",
-            expected_output="HELLO WORLD\n",
-            hint="The decorator already handles it — just print greet().",
-        ),
+        Challenge("Decorator that converts return to uppercase.",
+                  "def uppercase(func):\n    def wrapper():\n        result = func()\n        return result.upper()\n    return wrapper\n\n@uppercase\ndef greet():\n    return 'hello world'\n\nprint(greet())", "HELLO WORLD\n",
+                  "wrapper() calls func() then transforms result.", "medium"),
+        Challenge("Timer decorator that prints execution time.",
+                  "import time\ndef timer(func):\n    def wrapper(*args, **kwargs):\n        start = time.time()\n        result = func(*args, **kwargs)\n        elapsed = time.time() - start\n        print(f'Took {elapsed:.4f}s')\n        return result\n    return wrapper\n\n@timer\ndef slow_add(a, b):\n    time.sleep(0.1)\n    return a + b\n\nprint(slow_add(3, 4))", None,
+                  "wrapper uses *args, **kwargs to pass through.", "hard"),
+        Challenge("Decorator with arguments: @repeat(n).",
+                  "def repeat(n):\n    def decorator(func):\n        def wrapper(*args, **kwargs):\n            for _ in range(n):\n                func(*args, **kwargs)\n        return wrapper\n    return decorator\n\n@repeat(3)\ndef say(word):\n    print(word)\n\nsay('Hi')", "Hi\nHi\nHi\n",
+                  "repeat(n) returns a decorator that calls func n times.", "hard"),
     ],
     "5.2": [
-        Challenge(
-            description="Use a context manager (with statement) to open a file and write 'Learning Python!' to it. Then verify the content by printing it.",
-            template='with open("output.txt", "w") as f:\n    f.write("...")\n\nwith open("output.txt", "r") as f:\n    ...',
-            expected_output="Learning Python!\n",
-            hint="Print f.read() in the second with block.",
-        ),
+        Challenge("Write to file using with-statement and read it back.",
+                  'with open("output.txt", "w") as f:\n    f.write("Learning Python!")\nwith open("output.txt", "r") as f:\n    print(f.read())', "Learning Python!\n",
+                  "Use 'with' for automatic file closing.", "easy"),
+        Challenge("Create a custom context manager using @contextmanager.",
+                  "from contextlib import contextmanager\n\n@contextmanager\ndef tag(name):\n    print(f'<{name}>')\n    yield\n    print(f'</{name}>')\n\nwith tag('p'):\n    print('Hello')", "<p>\nHello\n</p>\n",
+                  "Code before yield runs on enter, after yield on exit.", "medium"),
+        Challenge("Use contextlib.suppress to ignore a specific exception.",
+                  "from contextlib import suppress\n\nwith suppress(FileNotFoundError):\n    with open('nonexistent.txt') as f:\n        print(f.read())\n    print('No error raised')",
+                  "No error raised\n",
+                  "suppress(ErrorType) catches and ignores that error.", "medium"),
     ],
-    # ── Phase 6: Engineering ──
+    "5.3": [
+        Challenge("Write an async function that prints numbers 1-3 with delays.",
+                  "import asyncio\n\nasync def count():\n    for i in range(1, 4):\n        print(i)\n        await asyncio.sleep(0.1)\n\nasyncio.run(count())", "1\n2\n3\n",
+                  "asyncio.run() starts the event loop.", "medium"),
+        Challenge("Run multiple async tasks concurrently with asyncio.gather.",
+                  "import asyncio\n\nasync def fetch_data(n):\n    await asyncio.sleep(0.1)\n    return f'Data {n}'\n\nasync def main():\n    results = await asyncio.gather(fetch_data(1), fetch_data(2), fetch_data(3))\n    for r in results:\n        print(r)\n\nasyncio.run(main())", "Data 1\nData 2\nData 3\n",
+                  "asyncio.gather() runs tasks concurrently.", "hard"),
+    ],
+    "5.4": [
+        Challenge("Create and start a thread that prints numbers.",
+                  "import threading\n\ndef print_nums():\n    for i in range(3):\n        print(i)\n\nt = threading.Thread(target=print_nums)\nt.start()\nt.join()\nprint('Done')", "0\n1\n2\nDone\n",
+                  ".start() begins execution, .join() waits for completion.", "medium"),
+        Challenge("Use ThreadPoolExecutor to run multiple tasks.",
+                  "from concurrent.futures import ThreadPoolExecutor\n\ndef square(n):\n    return n * n\n\nwith ThreadPoolExecutor(max_workers=3) as ex:\n    results = list(ex.map(square, [1, 2, 3, 4, 5]))\n    print(results)", "[1, 4, 9, 16, 25]\n",
+                  "executor.map() distributes work across threads.", "medium"),
+    ],
+    "5.5": [
+        Challenge("Create and start a process that prints a message.",
+                  "import multiprocessing\n\ndef worker():\n    print('Hello from process')\n\np = multiprocessing.Process(target=worker)\np.start()\np.join()\nprint('Done')", "Hello from process\nDone\n",
+                  "Similar to threading but creates a separate process.", "medium"),
+        Challenge("Use ProcessPoolExecutor for CPU-bound tasks.",
+                  "from concurrent.futures import ProcessPoolExecutor\n\ndef is_prime(n):\n    if n < 2: return False\n    for i in range(2, int(n**0.5) + 1):\n        if n % i == 0: return False\n    return True\n\nwith ProcessPoolExecutor() as ex:\n    results = list(ex.map(is_prime, [2, 3, 4, 5, 6, 7]))\n    print(results)", "[True, True, False, True, False, True]\n",
+                  "ProcessPoolExecutor bypasses the GIL for CPU-bound work.", "hard"),
+    ],
+    "5.6": [
+        Challenge("Check reference count of an object.",
+                  "import sys\nx = []\ny = x\nprint(sys.getrefcount(x) - 1)", "2\n",
+                  "getrefcount includes the temporary reference from the function call, so subtract 1.", "medium"),
+        Challenge("Check if two variables point to the same object using `is`.",
+                  "a = [1, 2, 3]\nb = a\nc = [1, 2, 3]\nprint(a is b)\nprint(a is c)", "True\nFalse\n",
+                  "is checks identity (same object), == checks equality (same value).", "medium"),
+        Challenge("Use `gc` module to get garbage collector stats.",
+                  "import gc\nprint(gc.get_count())", None,
+                  "gc.get_count() returns (collections_in_this_generation, collections_since_last, objects_in_oldest_generation)", "hard"),
+    ],
+
+    # ══════════════════════════════════════════════════════════
+    # PHASE 6: PYTHON FOR ENGINEERING
+    # ══════════════════════════════════════════════════════════
     "6.1": [
-        Challenge(
-            description="Use the requests library to fetch https://httpbin.org/get and print the status code.",
-            template="import requests\nresponse = requests.get('https://httpbin.org/get')\n# Print the status code",
-            expected_output="200\n",
-            hint="Use print(response.status_code).",
-        ),
+        Challenge("Make a GET request and print the status code.",
+                  "import requests\nr = requests.get('https://httpbin.org/get')\nprint(r.status_code)", "200\n",
+                  ".status_code returns the HTTP status.", "easy"),
+        Challenge("Send a POST request with JSON data.",
+                  "import requests\ndata = {'name': 'Alice'}\nr = requests.post('https://httpbin.org/post', json=data)\nprint(r.json()['json']['name'])", "Alice\n",
+                  "Use json= parameter instead of data=.", "medium"),
+        Challenge("Handle a 404 error gracefully.",
+                  "import requests\ntry:\n    r = requests.get('https://httpbin.org/status/404')\n    if r.status_code == 404:\n        print('Not found')\nexcept requests.RequestException:\n    print('Error')", "Not found\n",
+                  "Check status_code before accessing content.", "medium"),
+    ],
+    "6.2": [
+        Challenge("Read an environment variable with a default.",
+                  "import os\nprint(os.getenv('MY_VAR', 'default_value'))", "default_value\n",
+                  "os.getenv(key, default) returns default if not set.", "easy"),
+        Challenge("Set an environment variable and read it back.",
+                  "import os\nos.environ['MY_VAR'] = 'hello'\nprint(os.environ['MY_VAR'])", "hello\n",
+                  "os.environ acts like a dict.", "easy"),
+        Challenge("Simulate a .env file parser.",
+                  'env_content = "DB_HOST=localhost\\nDB_PORT=5432"\nenv = {}\nfor line in env_content.splitlines():\n    if "=" in line and not line.startswith("#"):\n        k, v = line.split("=", 1)\n        env[k] = v\nprint(env["DB_HOST"])', "localhost\n",
+                  "Split by =, strip whitespace.", "medium"),
     ],
     "6.3": [
-        Challenge(
-            description="Write a function `add(a, b)` and test it using an assert statement.",
-            template="def add(a, b):\n    return a + b\n\n# Use assert to test add(2, 3) == 5\n# Use assert to test add(-1, 1) == 0\nprint('All tests passed!')",
-            expected_output="All tests passed!\n",
-            hint="assert add(2, 3) == 5, assert add(-1, 1) == 0",
-        ),
+        Challenge("Write a function and test it with assert.",
+                  "def add(a, b):\n    return a + b\n\nassert add(2, 3) == 5\nassert add(-1, 1) == 0\nprint('All tests passed!')", "All tests passed!\n",
+                  "assert raises AssertionError if the condition is False.", "easy"),
+        Challenge("Use pytest-style test with a fixture (simulated). Test that uppercase works.",
+                  "def to_uppercase(s):\n    return s.upper()\n\ndef test_uppercase():\n    assert to_uppercase('hello') == 'HELLO'\n    assert to_uppercase('abc123') == 'ABC123'\n    print('test_uppercase passed!')\n\ntest_uppercase()", "test_uppercase passed!\n",
+                  "Simple assertion testing.", "medium"),
+        Challenge("Mock an API call using unittest.mock.",
+                  "from unittest.mock import Mock\n\n# Mock an API response\nmock_response = Mock()\nmock_response.status_code = 200\nmock_response.json.return_value = {'result': 'ok'}\n\nprint(mock_response.status_code)\nprint(mock_response.json()['result'])", "200\nok\n",
+                  "Mock objects simulate real objects for testing.", "hard"),
     ],
-    # ── Phase 7: AI Engineering ──
+    "6.4": [
+        Challenge("Use argparse to parse two numbers and print their sum.",
+                  "import argparse\nparser = argparse.ArgumentParser()\nparser.add_argument('a', type=int)\nparser.add_argument('b', type=int)\nargs = parser.parse_args(['5', '10'])\nprint(args.a + args.b)", "15\n",
+                  "parse_args() with a list simulates command-line input.", "easy"),
+        Challenge("Add an optional --verbose flag.",
+                  "import argparse\nparser = argparse.ArgumentParser()\nparser.add_argument('--verbose', action='store_true')\nargs = parser.parse_args(['--verbose'])\nprint(args.verbose)", "True\n",
+                  "action='store_true' sets the arg to True if present.", "medium"),
+        Challenge("Create a CLI with subcommands: add and multiply.",
+                  "import argparse\nparser = argparse.ArgumentParser()\nsub = parser.add_subparsers(dest='cmd')\n\nadd_p = sub.add_parser('add')\nadd_p.add_argument('x', type=int)\nadd_p.add_argument('y', type=int)\n\nmul_p = sub.add_parser('mul')\nmul_p.add_argument('x', type=int)\nmul_p.add_argument('y', type=int)\n\nargs = parser.parse_args(['add', '3', '4'])\nif args.cmd == 'add':\n    print(args.x + args.y)", "7\n",
+                  "add_subparsers() creates subcommand groups.", "hard"),
+    ],
+    "6.5": [
+        Challenge("Create a simple project structure in code (simulate a config module).",
+                  "class Config:\n    DEBUG = True\n    DATABASE_URL = 'sqlite:///app.db'\n\nprint(Config.DEBUG)\nprint(Config.DATABASE_URL)", "True\nsqlite:///app.db\n",
+                  "Use a class to group related settings.", "easy"),
+        Challenge("Use __init__.py to control exports with __all__.",
+                  "# Simulate: mypkg/__init__.py with __all__ = ['func_a']\n# Then: from mypkg import *\n# This only imports func_a\n\nmypkg_all = ['func_a']\ndef func_a(): return 'A'\ndef func_b(): return 'B'\n\nfor name in mypkg_all:\n    if name == 'func_a':\n        print(func_a())",
+                  "A\n",
+                  "__all__ restricts what 'from module import *' imports.", "medium"),
+    ],
+
+    # ══════════════════════════════════════════════════════════
+    # PHASE 7: PYTHON FOR AI ENGINEERING
+    # ══════════════════════════════════════════════════════════
     "7.1": [
-        Challenge(
-            description="Create a NumPy array of shape (3, 3) filled with zeros, then set the middle element to 1. Print the array.",
-            template="import numpy as np\narr = np.zeros((3, 3))\n# Set the middle element (index [1,1]) to 1\nprint(arr)",
-            expected_output="[[0. 0. 0.]\n [0. 1. 0.]\n [0. 0. 0.]]\n",
-            hint="Use arr[1, 1] = 1",
-        ),
+        Challenge("Create a 3x3 zero array, set middle to 1.",
+                  "import numpy as np\narr = np.zeros((3, 3))\narr[1, 1] = 1\nprint(arr)",
+                  "[[0. 0. 0.]\n [0. 1. 0.]\n [0. 0. 0.]]\n",
+                  "arr[1, 1] = 1", "easy"),
+        Challenge("Create an array from 0-9, reshape to 2x5.",
+                  "import numpy as np\narr = np.arange(10).reshape(2, 5)\nprint(arr)",
+                  "[[0 1 2 3 4]\n [5 6 7 8 9]]\n",
+                  "arange(10).reshape(2, 5)", "medium"),
+        Challenge("Compute dot product of two vectors.",
+                  "import numpy as np\na = np.array([1, 2, 3])\nb = np.array([4, 5, 6])\nprint(np.dot(a, b))", "32\n",
+                  "np.dot(a, b) = 1*4 + 2*5 + 3*6 = 32", "medium"),
+        Challenge("Use broadcasting to add a 1D array to each row of a 2D array.",
+                  "import numpy as np\nmatrix = np.ones((3, 3))\nrow = np.array([1, 2, 3])\nresult = matrix + row\nprint(result)",
+                  "[[2. 3. 4.]\n [2. 3. 4.]\n [2. 3. 4.]]\n",
+                  "NumPy broadcasts row to match matrix shape.", "medium"),
     ],
     "7.2": [
-        Challenge(
-            description="Create a Pandas DataFrame from a dictionary with columns 'Name' and 'Age', then print the DataFrame.",
-            template="import pandas as pd\ndata = {'Name': ['Alice', 'Bob'], 'Age': [25, 30]}\ndf = pd.DataFrame(data)\nprint(df)",
-            expected_output="    Name  Age\n0  Alice   25\n1    Bob   30\n",
-            hint="The code is mostly done — just print df.",
-        ),
+        Challenge("Create a DataFrame from dict and print it.",
+                  "import pandas as pd\ndata = {'Name': ['Alice', 'Bob'], 'Age': [25, 30]}\ndf = pd.DataFrame(data)\nprint(df)",
+                  "    Name  Age\n0  Alice   25\n1    Bob   30\n",
+                  "pd.DataFrame() from a dict.", "easy"),
+        Challenge("Filter rows where Age > 25.",
+                  "import pandas as pd\ndf = pd.DataFrame({'Name': ['A','B','C'], 'Age': [20, 30, 25]})\nfiltered = df[df['Age'] > 25]\nprint(filtered)",
+                  "  Name  Age\n1    B   30\n",
+                  "df[df['Age'] > 25]", "medium"),
+        Challenge("Group by a column and compute mean.",
+                  "import pandas as pd\ndf = pd.DataFrame({'City': ['NYC','LA','NYC','LA'], 'Sales': [100, 200, 150, 250]})\ngrouped = df.groupby('City')['Sales'].mean()\nprint(grouped)",
+                  "City\nLA     225.0\nNYC    125.0\nName: Sales, dtype: float64\n",
+                  "df.groupby('City')['Sales'].mean()", "medium"),
+    ],
+    "7.3": [
+        Challenge("Create a simple line chart (save to file).",
+                  "import matplotlib.pyplot as plt\nx = [1, 2, 3, 4]\ny = [1, 4, 2, 3]\nplt.plot(x, y)\nplt.savefig('plot.png')\nprint('Saved plot.png')", "Saved plot.png\n",
+                  "plt.plot() then plt.savefig().", "easy"),
+        Challenge("Create a bar chart of fruits and their counts.",
+                  "import matplotlib.pyplot as plt\nfruits = ['Apple', 'Banana', 'Cherry']\ncounts = [30, 15, 25]\nplt.bar(fruits, counts)\nplt.savefig('bar.png')\nplt.close()\nprint('Bar chart saved')", "Bar chart saved\n",
+                  "plt.bar(x, y) creates a bar chart.", "medium"),
+        Challenge("Create a histogram of random data.",
+                  "import matplotlib.pyplot as plt\nimport numpy as np\ndata = np.random.randn(1000)\nplt.hist(data, bins=30)\nplt.savefig('hist.png')\nplt.close()\nprint('Histogram saved')", "Histogram saved\n",
+      "plt.hist(data, bins=30) creates a histogram.", "medium"),
+    ],
+    "7.4": [
+        Challenge("Create a tensor and print its shape.",
+                  "import torch\nx = torch.tensor([[1, 2], [3, 4]])\nprint(x.shape)", "torch.Size([2, 2])\n",
+                  ".shape returns the dimensions.", "easy"),
+        Challenge("Compute gradients with autograd.",
+                  "import torch\nx = torch.tensor(3.0, requires_grad=True)\ny = x ** 2\ny.backward()\nprint(x.grad)", "tensor(6.)\n",
+                  "y.backward() computes gradients, stored in x.grad.", "medium"),
+        Challenge("Create a simple neural network with one linear layer.",
+                  "import torch\nimport torch.nn as nn\n\nmodel = nn.Linear(2, 1)\nx = torch.tensor([[1.0, 2.0]])\noutput = model(x)\nprint(output.shape)", "torch.Size([1, 1])\n",
+                  "nn.Linear(in_features, out_features) creates a layer.", "medium"),
+    ],
+    "7.5": [
+        Challenge("Create a FastAPI app with a single GET endpoint (simulate).",
+                  'from fastapi import FastAPI\napp = FastAPI()\n\n@app.get("/")\ndef root():\n    return {"message": "Hello"}\n\nprint("App created")', "App created\n",
+                  "The endpoint returns a dict (auto-converted to JSON).", "medium"),
+        Challenge("Create a GET endpoint with a path parameter.",
+                  'from fastapi import FastAPI\napp = FastAPI()\n\n@app.get("/items/{item_id}")\ndef read_item(item_id: int):\n    return {"item_id": item_id}\n\nprint("Route created")', "Route created\n",
+                  "Path params are extracted from the URL path.", "medium"),
+    ],
+    "7.6": [
+        Challenge("Create a Pydantic model and validate data.",
+                  "from pydantic import BaseModel\n\nclass User(BaseModel):\n    name: str\n    age: int\n\nu = User(name='Alice', age=30)\nprint(u.model_dump())", "{'name': 'Alice', 'age': 30}\n",
+                  ".model_dump() converts to dict.", "easy"),
+        Challenge("Create a model with validation using Field constraints.",
+                  "from pydantic import BaseModel, Field\n\nclass Product(BaseModel):\n    name: str = Field(min_length=1)\n    price: float = Field(gt=0)\n\ntry:\n    p = Product(name='', price=-5)\n    print('Created')\nexcept Exception as e:\n    print('Validation error')", "Validation error\n",
+                  "Field(gt=0) means greater than 0.", "medium"),
+        Challenge("Use @field_validator for custom validation.",
+                  "from pydantic import BaseModel, field_validator\n\nclass PasswordModel(BaseModel):\n    password: str\n\n    @field_validator('password')\n    @classmethod\n    def check_length(cls, v):\n        if len(v) < 8:\n            raise ValueError('Too short')\n        return v\n\ntry:\n    p = PasswordModel(password='short')\nexcept Exception as e:\n    print('Too short')", "Too short\n",
+                  "Use @field_validator with @classmethod.", "medium"),
     ],
 }
 
 
 def get_challenge(phase: int, topic: int) -> Optional["Challenge"]:
-    """Get the first challenge for a given phase.topic."""
     key = f"{phase}.{topic}"
     challenges = CHALLENGES.get(key, [])
     return challenges[0] if challenges else None
 
 
 def get_all_challenges(phase: int, topic: int) -> list["Challenge"]:
-    """Get all challenges for a given phase.topic."""
     key = f"{phase}.{topic}"
     return CHALLENGES.get(key, [])
 
@@ -251,14 +619,11 @@ def show_challenge(challenge: Challenge, console) -> None:
     from rich.panel import Panel
     from rich.syntax import Syntax
     from rich.markdown import Markdown as RichMD
-    from rich.console import Console as RichConsole
 
+    difficulty_colors = {"easy": "green", "medium": "yellow", "hard": "red"}
+    color = difficulty_colors.get(challenge.difficulty, "cyan")
     md = RichMD(challenge.description)
-    panel = Panel(
-        f"[bold cyan]🎯 Challenge[/]",
-        border_style="cyan",
-    )
-    console.print(panel)
+    console.print(Panel(f"[bold cyan]🎯 Challenge [/{color}]({challenge.difficulty})[/{color}]", border_style="cyan"))
     console.print(md)
     if challenge.template:
         console.print("\n[bold]Starting code:[/]")
