@@ -1,17 +1,17 @@
-# 🐍 Python Interactive Tutorial
+# Python Interactive Tutorial
 
-Learn Python from fundamentals to AI engineering — all from your terminal.
+Learn Python from fundamentals to AI engineering -- all from your terminal.
 
 ## Quick Start
 
 ```bash
-pip install python-tutorial
+pip install git+https://github.com/Manas-thakur/python-tutorial.git
 
 # Launch interactive mode
-python-tutorial
-
-# Or with the short alias
 pytut
+
+# Or full command
+python-tutorial
 ```
 
 ## Commands
@@ -19,31 +19,47 @@ pytut
 | Command | Description |
 |---------|-------------|
 | `python-tutorial` | Interactive menu (default) |
-| `python-tutorial list` | List all phases and topics |
-| `python-tutorial view <phase> <topic>` | View a specific topic |
-| `python-tutorial quiz [phase]` | Take a quiz (optional: specific phase) |
-| `python-tutorial status` | Show learning progress |
-| `python-tutorial reset` | Reset all progress |
+| `list` | List all phases and topics |
+| `view <phase> <topic>` | View a specific topic |
+| `quiz [phase]` | Take a quiz (optional: specific phase) |
+| `challenge <phase> <topic>` | Do a coding challenge |
+| `sandbox` | Open the code playground |
+| `search <term>` | Search all content |
+| `flashcards [phase]` | Review as flashcards |
+| `status` | Show learning progress, level, streak, badges |
+| `badges` | Show earned badges |
+| `bookmark` | Show current bookmark |
+| `reset` | Reset all progress |
 
 ## Features
 
 - **56 topics** across 7 phases, from basics to AI engineering
-- **Interactive reading** — sections displayed one at a time with code highlighting
-- **Knowledge checks** — MCQ quizzes after each topic
-- **Progress tracking** — saved to `~/.python_tutorial_progress.json`
-- **Rich formatting** — syntax-highlighted code, panels, progress bars
-- **Cross-platform** — works on Linux, macOS, Windows
+- **Interactive reading** -- sections displayed one at a time with syntax-highlighted code
+- **Knowledge checks** -- Q&A review after each topic
+- **Coding challenges** -- 150+ exercises with expected-output validation (easy/medium/hard)
+- **Code sandbox** -- run Python code in an isolated subprocess (5s timeout, blocked imports)
+- **Flashcards** -- Q&A review mode with self-rating
+- **Full-text search** -- search across all topics
+- **Progress tracking** -- saved to `~/.python_tutorial_progress.json`
+- **XP & Level system** -- earn XP for completing topics and challenges, level up
+- **Progressive unlocking** -- phases unlock at 70% completion of the previous phase
+- **Badges** -- 11+ badges for milestones, level milestones, and streaks
+- **Streaks** -- consecutive daily usage tracking
+- **Bookmark & resume** -- auto-bookmark, prompt to resume on next launch
+- **Error explainer** -- plain-English explanations for common Python errors (13 types)
+- **Rich formatting** -- syntax-highlighted code, panels, progress bars via Rich
+- **Cross-platform** -- works on Linux, macOS, Windows
 
 ## Content Structure
 
 ```
-Phase 1: Python Fundamentals      (11 topics)
-Phase 2: Core Python               (8 topics)
-Phase 3: Object-Oriented Programming (8 topics)
-Phase 4: Intermediate Python       (9 topics)
-Phase 5: Advanced Python           (7 topics)
-Phase 6: Python for Engineering    (6 topics)
-Phase 7: Python for AI Engineering (7 topics)
+Phase 1: Python Fundamentals          (11 topics)
+Phase 2: Core Python                   (8 topics)
+Phase 3: Object-Oriented Programming   (8 topics)
+Phase 4: Intermediate Python           (9 topics)
+Phase 5: Advanced Python               (7 topics)
+Phase 6: Python for Engineering        (6 topics)
+Phase 7: Python for AI Engineering     (7 topics)
 ```
 
 ## Custom Content Path
@@ -55,7 +71,7 @@ python-tutorial --content-dir /path/to/your/content
 ## Development
 
 ```bash
-git clone <repo>
+git clone https://github.com/Manas-thakur/python-tutorial.git
 cd python-tutorial
 pip install -e .
 ```
