@@ -55,6 +55,11 @@ class TutorialApp(App):
         border: solid $secondary;
     }
 
+    ContentPanel > Markdown {
+        height: 1fr;
+        overflow-y: auto;
+    }
+
     MainContainer > CodePanel {
         width: 35%;
         border: solid $accent;
