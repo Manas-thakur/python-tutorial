@@ -17,7 +17,7 @@ def run_quiz(questions: list[QuizQuestion]) -> tuple[int, int]:
     total = len(questions)
 
     console.print(Panel(
-        "[bold cyan]📝 Knowledge Check[/]\n\n"
+        "[bold cyan]Knowledge Check[/]\n\n"
         "Test your understanding of the topic.",
         border_style="cyan",
     ))
@@ -35,12 +35,12 @@ def run_quiz(questions: list[QuizQuestion]) -> tuple[int, int]:
             )
             choice = int(answer) - 1
             if choice == q.answer_index:
-                console.print("  [bold green]✅ Correct![/]")
+                console.print("  [bold green]Correct![/]")
                 correct += 1
             else:
-                console.print(f"  [bold red]❌ Incorrect.[/] The answer was: [green]{q.answer}[/]")
+                console.print(f"  [bold red]Incorrect.[/] The answer was: [green]{q.answer}[/]")
         else:
-            # Simple Q&A — think then reveal
+            # Simple Q&A - think then reveal
             console.print("[dim]Press Enter when ready to see the answer...[/]")
             Prompt.ask("", default="")
             console.print(f"  [bold]Answer:[/] [green]{q.answer}[/]")

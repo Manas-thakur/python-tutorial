@@ -34,8 +34,8 @@ def run_flashcard_session(phase_number: int = None):
 
     phase_label = f"Phase {phase_number}" if phase_number else "All Phases"
     console.print(Panel(
-        f"[bold cyan]🃏 Flashcard Review: {phase_label}[/]\n\n"
-        f"[bold]{len(all_cards)} cards[/] loaded. You'll be shown a question — "
+        f"[bold cyan]Flashcard Review: {phase_label}[/]\n\n"
+        f"[bold]{len(all_cards)} cards[/] loaded. You'll be shown a question - "
         "think of the answer, then reveal it. Rate yourself.",
         border_style="cyan",
     ))
@@ -68,7 +68,7 @@ def run_flashcard_session(phase_number: int = None):
 
     console.print()
     console.print(Panel(
-        f"[bold]📊 Session Summary[/]\n\n"
+        f"[bold]Session Summary[/]\n\n"
         f"Cards reviewed: {total}\n"
         f"Got it right: {correct}/{total} ({correct / total * 100:.0f}%)\n"
         f"Time: {mins}m {secs}s",

@@ -50,7 +50,7 @@ CHALLENGES: dict[str, list[Challenge]] = {
                   "(year % 400 == 0) or (year % 4 == 0 and year % 100 != 0)", "medium"),
         Challenge("Print the result of (5 + 3) * 2 ** 3 // 4 % 3",
                   "result = (5 + 3) * 2 ** 3 // 4 % 3\nprint(result)", "2\n",
-                  "Follow PEMDAS: parentheses → exponent → multiply → floor divide → mod.", "hard"),
+                  "Follow PEMDAS: parentheses -> exponent -> multiply -> floor divide -> mod.", "hard"),
     ],
     "1.4": [
         Challenge("Ask for a name and print 'Hello, <name>!' using an f-string.",
@@ -122,7 +122,7 @@ CHALLENGES: dict[str, list[Challenge]] = {
         Challenge("Print the first 10 Fibonacci numbers using a while loop.",
                   "a, b = 0, 1\ncount = 0\nwhile count < 10:\n    print(a)\n    a, b = b, a + b\n    count += 1",
                   "0\n1\n1\n2\n3\n5\n8\n13\n21\n34\n",
-                  "The template is already correct — just run it!", "medium"),
+                  "The template is already correct - just run it!", "medium"),
         Challenge("Use a for-else loop to check if a number is prime. Print 'Prime' or 'Not prime'.",
                   "num = 17\nfor i in range(2, num):\n    if num % i == 0:\n        print('Not prime')\n        break\nelse:\n    print('Prime')", "Prime\n",
                   "The else block runs if the loop never hits break.", "medium"),
@@ -143,7 +143,7 @@ CHALLENGES: dict[str, list[Challenge]] = {
         Challenge("Nested list comp: flatten [[1,2],[3,4],[5,6]] into [1,2,3,4,5,6].",
                   "matrix = [[1,2],[3,4],[5,6]]\nflat = [num for row in matrix for num in row]\nprint(flat)",
                   "[1, 2, 3, 4, 5, 6]\n",
-                  "for row in matrix, then for num in row — left to right.", "medium"),
+                  "for row in matrix, then for num in row - left to right.", "medium"),
     ],
     "1.10": [
         Challenge("Write 'Hello, File!' to test.txt, read it back.",
@@ -174,7 +174,7 @@ CHALLENGES: dict[str, list[Challenge]] = {
         Challenge("Use try/except/else/finally. Try converting input to int.",
                   'try:\n    val = int("hello")\nexcept ValueError:\n    print("Invalid int")\nelse:\n    print("Valid:", val)\nfinally:\n    print("Done")',
                   "Invalid int\nDone\n",
-                  "'hello' can't be converted — catches ValueError.", "medium"),
+                  "'hello' can't be converted - catches ValueError.", "medium"),
         Challenge("Create and raise a custom exception `NegativeError` for negative numbers.",
                   "class NegativeError(Exception):\n    pass\n\ndef check_positive(n):\n    if n < 0:\n        raise NegativeError('No negatives!')\n    return n\n\ntry:\n    print(check_positive(-5))\nexcept NegativeError as e:\n    print(e)",
                   "No negatives!\n",
@@ -192,9 +192,9 @@ CHALLENGES: dict[str, list[Challenge]] = {
           "Write a .py file then import it.", "hard"),
     ],
     "2.3": [
-        Challenge("Pip install a package (simulated) — just import json and print its location.",
+        Challenge("Pip install a package (simulated) - just import json and print its location.",
                   "import json\nprint(json.__name__)", "json\n",
-                  "json is built-in — just import and print.", "easy"),
+                  "json is built-in - just import and print.", "easy"),
         Challenge("Create a package structure in code: create a temp dir with __init__.py and import from it.",
                   'import tempfile, os, sys\nwith tempfile.TemporaryDirectory() as d:\n    pkg = os.path.join(d, "mypkg")\n    os.makedirs(pkg)\n    with open(os.path.join(pkg, "__init__.py"), "w") as f:\n        f.write("x = 42")\n    sys.path.insert(0, d)\n    import mypkg\n    print(mypkg.x)',
                   "42\n",
@@ -290,7 +290,7 @@ CHALLENGES: dict[str, list[Challenge]] = {
     "3.5": [
         Challenge("Demonstrate duck typing: two classes with a `sound()` method.",
                   "class Duck:\n    def sound(self): return 'Quack'\nclass Cat:\n    def sound(self): return 'Meow'\n\ndef make_sound(animal):\n    print(animal.sound())\n\nmake_sound(Duck())\nmake_sound(Cat())", "Quack\nMeow\n",
-                  "Both classes have sound() — Python doesn't care about the type.", "medium"),
+                  "Both classes have sound() - Python doesn't care about the type.", "medium"),
         Challenge("Override `+` for a custom class using __add__.",
                   "class Point:\n    def __init__(self, x, y):\n        self.x = x\n        self.y = y\n    def __add__(self, other):\n        return Point(self.x + other.x, self.y + other.y)\n    def __repr__(self):\n        return f'Point({self.x}, {self.y})'\n\np1 = Point(1, 2)\np2 = Point(3, 4)\nprint(p1 + p2)", "Point(4, 6)\n",
                   "__add__ lets you use + with custom objects.", "medium"),
@@ -623,7 +623,7 @@ def show_challenge(challenge: Challenge, console) -> None:
     difficulty_colors = {"easy": "green", "medium": "yellow", "hard": "red"}
     color = difficulty_colors.get(challenge.difficulty, "cyan")
     md = RichMD(challenge.description)
-    console.print(Panel(f"[bold cyan]🎯 Challenge [/{color}]({challenge.difficulty})[/{color}]", border_style="cyan"))
+    console.print(Panel(f"[bold cyan]Challenge [/{color}]({challenge.difficulty})[/{color}]", border_style="cyan"))
     console.print(md)
     if challenge.template:
         console.print("\n[bold]Starting code:[/]")

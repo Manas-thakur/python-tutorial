@@ -39,7 +39,7 @@ from .flashcards import run_flashcard_session
 
 app = typer.Typer(
     name="python-tutorial",
-    help="🐍 Interactive Python tutorial: read, code, quiz, and track progress",
+    help="Interactive Python tutorial: read, code, quiz, and track progress",
     add_completion=False,
     rich_markup_mode="rich",
 )
@@ -78,7 +78,7 @@ def _get_topic_or_exit(phase: Phase, num: int) -> Topic:
 
 @app.callback(invoke_without_command=True)
 def main(ctx: typer.Context, content_dir: Optional[Path] = CONTENT_DIR_OPTION):
-    """🐍 Python Interactive Tutorial - Learn Python from the terminal."""
+    """Python Interactive Tutorial - Learn Python from the terminal."""
     if ctx.invoked_subcommand is not None:
         return
     interactive_loop(content_dir)
@@ -90,12 +90,13 @@ def interactive_loop(content_dir: Optional[Path] = None):
         progress.add_streak()
         phases = _load_phases(content_dir)
         show_banner()
+        _show_level_banner()
 
         # Check for bookmark
         bookmark = progress.get_bookmark()
         if bookmark:
             should_resume = Confirm.ask(
-                f"[yellow]📖 You were last viewing Phase {bookmark['phase']}, Topic {bookmark['topic']}. "
+                f"[yellow]You were last viewing Phase {bookmark['phase']}, Topic {bookmark['topic']}. "
                 "Resume?[/]",
                 default=True,
             )
@@ -117,7 +118,7 @@ def interactive_loop(content_dir: Optional[Path] = None):
             )
 
             if choice.lower() in ("q", "quit", "exit"):
-                console.print("\n[dim]Happy coding! 🐍[/]")
+                console.print("\n[dim]Happy coding![/]")
                 break
             if choice.lower() in ("search", "s"):
                 run_search(phases)
@@ -139,19 +140,35 @@ def interactive_loop(content_dir: Optional[Path] = None):
                 continue
             phase_num = int(choice)
             phase = _get_phase_or_exit(phase_num, phases)
+
+            if not progress.is_phase_unlocked(phase_num):
+                prev_phase = next((p for p in phases if p.number == phase_num - 1), None)
+                if prev_phase:
+                    done, total = progress.get_phase_progress(phase_num - 1, len(prev_phase.topics))
+                    console.print(f"[red]Phase {phase.label} is locked[/] - complete 70% of {prev_phase.label} first. [dim]({int(done/total*100)}% done)[/]")
+                continue
+
             phase_menu(phase, content_dir)
 
     except (KeyboardInterrupt, EOFError):
-        console.print("\n[dim]Goodbye! 👋[/]")
+        console.print("\n[dim]Goodbye![/]")
         sys.exit(0)
+
+
+def _show_level_banner():
+    info = progress.get_level_info()
+    bar = _bar(info["xp_current"], info["xp_needed"], 20)
+    console.print(f"[bold]Level [cyan]{info['level']}[/]  {bar}  [dim]{info['xp_current']}/{info['xp_needed']} XP[/]")
 
 
 def _show_global_hints():
     streak = progress.get_streak()
-    streak_text = f" 🔥 {streak}d" if streak else ""
+    streak_text = f" streak {streak}d" if streak else ""
     completed = progress.get_total_completed()
-    console.print(f"[dim]📚 {completed}/56 topics completed{streak_text}  |  "
-                  f"Commands: search, flashcards, sandbox, progress[/]")
+    level = progress.get_level()
+    xp = progress.get_xp()
+    console.print(f"[dim]{completed}/56 topics | Lv.{level} | {xp}XP{streak_text} | "
+                  f"search, flashcards, sandbox, progress[/]")
 
 
 def phase_menu(phase: Phase, content_dir: Optional[Path] = None):
@@ -233,14 +250,19 @@ def view_topic(phase_num: int, topic: Topic, content_dir: Optional[Path] = None)
     # Coding challenge
     challenge = get_challenge(phase_num, topic.number)
     if challenge:
-        do_challenge = Confirm.ask("\n[bold cyan]🎯 Try a coding challenge?[/]", default=True)
+        do_challenge = Confirm.ask("\n[bold cyan]Try a coding challenge?[/]", default=True)
         if do_challenge:
             run_coding_challenge(phase_num, topic.number, topic.title)
 
+    # Award XP
+    xp_gained = 10  # base for completing topic
+    if questions:
+        xp_gained += 10  # bonus for having quiz
+    leveled_up = progress.add_xp(xp_gained)
     progress.mark_complete(phase_num, topic.number)
     badges = progress.get_badges()
     progress.add_streak()
-    render_completion(phase_num, topic.number, topic.title, badges)
+    render_completion(phase_num, topic.number, topic.title, badges, xp_gained, leveled_up)
 
     # Show revision notes
     notes = get_revision_notes(topic)
@@ -249,7 +271,7 @@ def view_topic(phase_num: int, topic: Topic, content_dir: Optional[Path] = None)
             "[dim]Show revision summary? (y/n)[/]", default="y"
         )
         if show_revision.lower() == "y":
-            console.print(f"\n[bold cyan]📋 Revision: {topic.title}[/]")
+            console.print(f"\n[bold cyan]Revision: {topic.title}[/]")
             console.print(Markdown(notes))
 
 
@@ -299,7 +321,7 @@ def run_coding_challenge(phase_num: int, topic_num: int, title: str):
             if raw.strip().lower() == "done":
                 break
             if raw.strip().lower() == "hint":
-                console.print(f"[yellow]💡 Hint: {challenge.hint}[/]")
+                console.print(f"[yellow]Hint: {challenge.hint}[/]")
                 continue
             if raw.strip().lower() == "skip":
                 lines = []
@@ -323,9 +345,12 @@ def run_coding_challenge(phase_num: int, topic_num: int, title: str):
             actual = result["stdout"]
             expected = challenge.expected_output
             if actual == expected:
-                console.print("[bold green]✅ Passed! Great job![/]")
+                xp_reward = {"easy": 15, "medium": 25, "hard": 40}.get(challenge.difficulty, 20)
+                leveled_up = progress.add_xp(xp_reward)
+                level_notice = " [yellow]LEVEL UP![/]" if leveled_up else ""
+                console.print(f"[bold green]Passed! Great job! +{xp_reward}XP{level_notice}[/]")
             else:
-                console.print(f"[bold yellow]❌ Output doesn't match expected.[/]")
+                console.print(f"[bold yellow]Output doesn't match expected.[/]")
                 console.print(f"[dim]Expected:[/] {repr(expected)}")
                 console.print(f"[dim]Got:[/]      {repr(actual)}")
                 retry = Confirm.ask("[dim]Try again?[/]", default=True)
@@ -334,11 +359,11 @@ def run_coding_challenge(phase_num: int, topic_num: int, title: str):
                     return
         else:
             if result["success"]:
-                console.print("[bold green]✅ Code ran successfully![/]")
+                console.print("[bold green]Code ran successfully![/]")
             else:
-                console.print("[bold red]❌ There was an error.[/]")
+                console.print("[bold red]There was an error.[/]")
 
-    console.print("[bold green]🎯 All challenges complete for this topic![/]")
+    console.print("[bold green]All challenges complete for this topic![/]")
 
 
 def run_phase_quiz(phase: Phase, content_dir: Optional[Path] = None):
@@ -353,7 +378,7 @@ def run_phase_quiz(phase: Phase, content_dir: Optional[Path] = None):
         return
 
     console.print(Panel(
-        f"[bold cyan]📝 Phase Quiz: {phase.label}[/]\n\n"
+        f"[bold cyan]Phase Quiz: {phase.label}[/]\n\n"
         f"[bold]{len(all_questions)} questions across {len(phase.topics)} topics[/]",
         border_style="cyan",
     ))
@@ -366,7 +391,7 @@ def show_phase_revision(phase: Phase):
     for t in phase.topics:
         notes = get_revision_notes(t)
         if notes:
-            console.print(f"\n[bold cyan]📋 {t.label}[/]")
+            console.print(f"\n[bold cyan]{t.label}[/]")
             console.print(Markdown(notes[:2000]))
         Prompt.ask("[dim]Press Enter to continue[/]", default="")
 
@@ -397,7 +422,7 @@ def view(
 
 @app.command()
 def quiz(
-    phase: int = typer.Argument(None, help="Phase number (optional — all phases if omitted)"),
+    phase: int = typer.Argument(None, help="Phase number (optional - all phases if omitted)"),
     content_dir: Optional[Path] = CONTENT_DIR_OPTION,
 ):
     """Take a quiz for a phase or all phases."""
@@ -414,7 +439,7 @@ def quiz(
             all_q.extend(get_quiz_questions(t))
 
     console.print(Panel(
-        f"[bold cyan]📝 Full Roadmap Quiz[/]\n\n"
+        f"[bold cyan]Full Roadmap Quiz[/]\n\n"
         f"[bold]{len(all_q)} questions across all phases[/]",
         border_style="cyan",
     ))
@@ -464,7 +489,7 @@ def run_search(phases: list[Phase], query: str = None):
         console.print(f"[yellow]No results found for '{query}'[/]")
         return
 
-    console.print(f"\n[bold cyan]🔍 Search results for '{query}'[/] ({len(results)} topics)")
+    console.print(f"\n[bold cyan]Search results for '{query}'[/] ({len(results)} topics)")
     for r in results[:15]:
         console.print(f"\n[bold yellow]P{r['phase']}.{r['topic']}[/] {r['title']}")
         for line_no, text in r["matches"][:5]:
@@ -514,11 +539,15 @@ def show_detailed_progress():
 
     total_done = 0
     total_all = 0
+    level_info = progress.get_level_info()
 
-    console.print(f"\n[bold cyan]📊 Learning Progress[/]")
+    console.print(f"\n[bold cyan]Learning Progress[/]")
+    # Level XP bar
+    xp_bar = _bar(level_info["xp_current"], level_info["xp_needed"], 20)
+    console.print(f"[bold]Level {level_info['level']}[/] {xp_bar} [dim]{level_info['xp_current']}/{level_info['xp_needed']} XP ({level_info['xp_total']} total)[/]")
     streak = progress.get_streak()
     if streak:
-        console.print(f"[yellow]🔥 {streak}-day learning streak![/]")
+        console.print(f"[yellow]{streak}-day learning streak![/]")
     console.print(f"[dim]Progress saved to: {Path.home() / '.python_tutorial_progress.json'}[/]\n")
 
     table = Table(box=ROUNDED, header_style="bold magenta")
@@ -542,7 +571,7 @@ def show_detailed_progress():
 
     pct = (total_done / total_all * 100) if total_all else 0
     if pct == 100:
-        console.print("\n[bold green]🎉 All topics completed! You're a Python master![/]")
+        console.print("\n[bold green]All topics completed! You're a Python master![/]")
     else:
         remaining = total_all - total_done
         console.print(f"\n[cyan]Overall: {pct:.1f}% ({remaining} topics remaining)[/]")
@@ -572,6 +601,6 @@ def bookmark():
     """Show your current bookmark."""
     bm = progress.get_bookmark()
     if bm:
-        console.print(f"[yellow]📖 Bookmark: Phase {bm['phase']}, Topic {bm['topic']}[/]")
+        console.print(f"[yellow]Bookmark: Phase {bm['phase']}, Topic {bm['topic']}[/]")
     else:
         console.print("[dim]No bookmark set.[/]")
