@@ -1,7 +1,6 @@
 import subprocess
 import sys
 import tempfile
-import textwrap
 from pathlib import Path
 
 from rich.console import Console
@@ -10,16 +9,6 @@ from rich.syntax import Syntax
 from rich.prompt import Prompt
 
 console = Console()
-
-SAFE_BUILTINS = {
-    "abs", "all", "any", "ascii", "bin", "bool", "bytearray", "bytes",
-    "chr", "complex", "dict", "dir", "divmod", "enumerate", "float",
-    "format", "frozenset", "hash", "hex", "id", "int", "isinstance",
-    "issubclass", "iter", "len", "list", "map", "max", "min", "next",
-    "object", "oct", "ord", "pow", "range", "repr", "reversed", "round",
-    "set", "slice", "sorted", "str", "sum", "tuple", "type", "zip",
-    "filter", "print", "input",
-}
 
 BLOCKED_IMPORTS = {
     "os", "subprocess", "sys", "shutil", "signal", "ctypes",
@@ -33,16 +22,17 @@ def run_code(code: str, timeout: int = 5) -> dict:
     """Execute Python code in a subprocess and return results."""
     with tempfile.TemporaryDirectory() as tmpdir:
         filepath = Path(tmpdir) / "script.py"
+        blocked_set = sorted(BLOCKED_IMPORTS)
         template = (
             "import sys, math, random, json, re, collections, itertools, string, datetime, fractions, decimal, statistics\n"
-            "from typing import List, Dict, Tuple, Optional, Union, Any\n\n"
-            "def __secret_check__(code_to_check, in_func=False):\n"
-            "    if in_func:\n"
-            "        return\n"
-            '    banned = ["__import__", "eval(", "exec(", "open(", "__builtins__"]\n'
-            "    for b in banned:\n"
-            "        if b in code_to_check:\n"
-            '            raise RuntimeError("Use of \'" + b.split("(")[0] + "\' is not allowed in the sandbox.")\n\n'
+            "from typing import List, Dict, Tuple, Optional, Union, Any\n"
+            f"_BLOCKED = {blocked_set!r}\n"
+            "_original_import = __builtins__.__import__\n"
+            "def _safe_import(name, *args, **kwargs):\n"
+            "    if name in _BLOCKED:\n"
+            '        raise ImportError(f"Import of {name!r} is not allowed in sandbox")\n'
+            "    return _original_import(name, *args, **kwargs)\n"
+            "__builtins__.__import__ = _safe_import\n\n"
             + code
         )
         filepath.write_text(template)

@@ -623,7 +623,7 @@ def show_challenge(challenge: Challenge, console) -> None:
     difficulty_colors = {"easy": "green", "medium": "yellow", "hard": "red"}
     color = difficulty_colors.get(challenge.difficulty, "cyan")
     md = RichMD(challenge.description)
-    console.print(Panel(f"[bold cyan]Challenge [/{color}]({challenge.difficulty})[/{color}]", border_style="cyan"))
+    console.print(Panel(f"[bold cyan]Challenge [{color}]({challenge.difficulty})[/] Difficulty", border_style="cyan"))
     console.print(md)
     if challenge.template:
         console.print("\n[bold]Starting code:[/]")
