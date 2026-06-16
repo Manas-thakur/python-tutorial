@@ -29,7 +29,7 @@ class TutorialStatusBar(Widget):
         if streak:
             parts.append(f"Streak {streak}d")
 
-        parts.append("Ctrl+P Search | Ctrl+Q Quiz | F5 Run | Q Quit")
+        parts.append("Ctrl+P Search | Ctrl+Q Quiz | Ctrl+F Flashcards | F5 Run | Ctrl+B Sidebar | C Contents | Q Quit")
 
         text.update("  |  ".join(parts))
 

@@ -1,9 +1,123 @@
+import random
+
 from textual.screen import Screen
 from textual.widgets import Static, Button, Input, RichLog
 from textual.containers import Container, Vertical, Horizontal
 from textual.app import ComposeResult
 
 from ..content import discover_phases, get_quiz_questions, search_content
+
+
+class FlashcardScreen(Screen):
+    def __init__(self, progress, phase=None, **kwargs):
+        super().__init__(**kwargs)
+        self.progress = progress
+        self.phase = phase
+        self.cards = []
+        self.current_index = 0
+        self.correct = 0
+        self.revealed = False
+        self.ratings = []
+
+    def compose(self) -> ComposeResult:
+        yield Static("", id="flashcard-header")
+        yield Static("", id="flashcard-question")
+        yield Static("", id="flashcard-answer")
+        yield Vertical(id="flashcard-actions")
+        yield RichLog(id="flashcard-feedback", highlight=True, markup=True)
+        yield Static("", id="flashcard-progress")
+        yield Button("Close", id="close-flashcards", variant="primary")
+
+    def on_mount(self) -> None:
+        phases = [self.phase] if self.phase else discover_phases()
+        for p in phases:
+            if p is None:
+                continue
+            for topic in p.topics:
+                for question in get_quiz_questions(topic):
+                    self.cards.append((p.number, topic.number, question.question, question.answer))
+
+        if not self.cards:
+            self.query_one("#flashcard-header", Static).update("No flashcards available")
+            return
+
+        random.shuffle(self.cards)
+        self._show_card()
+
+    def _reset_actions(self) -> Vertical:
+        actions = self.query_one("#flashcard-actions", Vertical)
+        actions.remove_children()
+        return actions
+
+    def _show_card(self) -> None:
+        if self.current_index >= len(self.cards):
+            self._show_results()
+            return
+
+        phase_num, topic_num, question, answer = self.cards[self.current_index]
+        self.revealed = False
+        self.query_one("#flashcard-header", Static).update(
+            f"[bold cyan]Flashcard {self.current_index + 1}/{len(self.cards)}[/]"
+        )
+        self.query_one("#flashcard-question", Static).update(
+            f"[bold yellow]P{phase_num}.{topic_num}[/] {question}"
+        )
+        self.query_one("#flashcard-answer", Static).update("")
+        self.query_one("#flashcard-progress", Static).update(
+            f"Score: {self.correct}/{self.current_index}"
+        )
+
+        actions = self._reset_actions()
+        actions.mount(Button("Reveal Answer", id="flashcard-reveal", variant="default"))
+        self.query_one("#flashcard-feedback", RichLog).clear()
+
+    def _show_results(self) -> None:
+        self.query_one("#flashcard-header", Static).update("[bold green]Flashcards Complete![/]")
+        self.query_one("#flashcard-question", Static).update("")
+        self.query_one("#flashcard-answer", Static).update("")
+        self._reset_actions()
+        feedback = self.query_one("#flashcard-feedback", RichLog)
+        feedback.clear()
+        total = len(self.cards)
+        feedback.write(f"[bold]Final Score: {self.correct}/{total}[/]")
+        if total > 0:
+            percentage = (self.correct / total) * 100
+            feedback.write(f"[bold]{percentage:.0f}%[/]")
+        self.query_one("#flashcard-progress", Static).update("")
+
+    def on_button_pressed(self, event) -> None:
+        if event.button.id == "close-flashcards":
+            self.app.pop_screen()
+            return
+
+        if not self.cards or self.current_index >= len(self.cards):
+            return
+
+        if event.button.id == "flashcard-reveal":
+            _, _, _, answer = self.cards[self.current_index]
+            self.revealed = True
+            self.query_one("#flashcard-answer", Static).update(f"[bold green]Answer:[/] {answer}")
+            actions = self._reset_actions()
+            actions.mount(Button("1 Again", id="flash-rate-1", variant="error"))
+            actions.mount(Button("2 Hard", id="flash-rate-2", variant="warning"))
+            actions.mount(Button("3 Good", id="flash-rate-3", variant="success"))
+            actions.mount(Button("4 Easy", id="flash-rate-4", variant="primary"))
+            return
+
+        if event.button.id and event.button.id.startswith("flash-rate-"):
+            try:
+                rating = int(event.button.id.rsplit("-", 1)[1])
+            except (ValueError, IndexError):
+                return
+
+            self.ratings.append(rating)
+            if rating >= 3:
+                self.correct += 1
+
+            feedback = self.query_one("#flashcard-feedback", RichLog)
+            feedback.write(f"[bold]Rated:[/] {rating}")
+            self.current_index += 1
+            self._show_card()
 
 
 class QuizScreen(Screen):
