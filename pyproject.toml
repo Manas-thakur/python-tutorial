@@ -58,6 +58,7 @@ packages = ["python_tutorial"]
 "python_tutorial/playground/playground-x86_64-apple-darwin" = "python_tutorial/playground/playground-x86_64-apple-darwin"
 "python_tutorial/playground/playground-aarch64-apple-darwin" = "python_tutorial/playground/playground-aarch64-apple-darwin"
 "python_tutorial/playground/tokyo-night-theme.json" = "python_tutorial/playground/tokyo-night-theme.json"
+"python_tutorial/playground/README.md" = "python_tutorial/playground/README.md"
 
 [tool.hatch.build.targets.sdist]
 include = ["python_tutorial/**"]
