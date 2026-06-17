@@ -1,9 +1,10 @@
 import random
 
-from textual.screen import Screen
-from textual.widgets import Static, Button, Input, RichLog
+from textual.screen import Screen, ModalScreen
+from textual.widgets import Static, Button, Input, ListView, ListItem, Label, RichLog, DataTable
 from textual.containers import Container, Vertical, Horizontal
 from textual.app import ComposeResult
+from textual.binding import Binding
 
 from ..content import discover_phases, get_quiz_questions, search_content
 from ..tutor import AdaptiveTutor
@@ -30,14 +31,12 @@ class TutorDashboardScreen(Screen):
         self._render_dashboard()
 
     def _render_dashboard(self) -> None:
-        """Render the full tutor dashboard."""
         header = self.query_one("#tutor-header", Static)
         header.update("[bold cyan]Adaptive Learning Guide[/]")
 
         log = self.query_one("#tutor-content", RichLog)
         log.clear()
 
-        # Stats
         stats = self.tutor.get_overall_stats()
         log.write(
             f"[bold]Overall Progress[/]\n"
@@ -47,17 +46,16 @@ class TutorDashboardScreen(Screen):
             f"  Level {stats['level']} | {stats['xp']} XP | Streak: {stats['streak']}d\n"
         )
 
-        # Recommendations
         log.write("\n[bold yellow]Recommended Next Actions:[/]\n")
         if self.recommendations:
             for i, rec in enumerate(self.recommendations, 1):
                 icon = {
-                    "learn": "📚",
-                    "quiz": "❓",
-                    "flashcard": "🎴",
-                    "challenge": "⚡",
-                    "review": "🔄",
-                }.get(rec.action_type, "•")
+                    "learn": "\U0001f4da",
+                    "quiz": "\u2753",
+                    "flashcard": "\U0001f3b4",
+                    "challenge": "\u26a1",
+                    "review": "\U0001f504",
+                }.get(rec.action_type, "\u2022")
                 log.write(
                     f"  {i}. {icon} [bold]P{rec.phase}.{rec.topic}[/] "
                     f"({rec.action_type}) - {rec.reason}\n"
@@ -65,13 +63,12 @@ class TutorDashboardScreen(Screen):
         else:
             log.write("  No recommendations yet. Keep learning!\n")
 
-        # Phase mastery map
         log.write("\n[bold]Phase Mastery Map:[/]\n")
         for phase_num in range(1, 8):
             summary = self.tutor.get_phase_summary(phase_num)
             if not summary:
                 continue
-            lock_icon = "" if summary["unlocked"] else " [red]🔒[/]"
+            lock_icon = "" if summary["unlocked"] else " [red]\U0001f512[/]"
             bar = self._make_progress_bar(
                 summary["completed"], summary["total"], 15
             )
@@ -80,7 +77,6 @@ class TutorDashboardScreen(Screen):
                 f"    {bar} {summary['completed']}/{summary['total']}\n"
             )
 
-        # Render action buttons
         actions = self.query_one("#tutor-actions", Vertical)
         actions.remove_children()
         if self.recommendations:
@@ -94,7 +90,6 @@ class TutorDashboardScreen(Screen):
             )
 
     def _make_progress_bar(self, completed: int, total: int, width: int = 15) -> str:
-        """Create a simple progress bar."""
         if total == 0:
             filled = width
         else:
@@ -185,7 +180,6 @@ class FlashcardScreen(Screen):
         if total > 0:
             percentage = (self.correct / total) * 100
             feedback.write(f"[bold]{percentage:.0f}%[/]")
-            # Record this flashcard session for tutor mastery tracking
             if self.cards:
                 phase, topic, _, _ = self.cards[0]
                 self.progress.record_quiz_attempt(phase, topic, self.correct, total)
@@ -227,6 +221,15 @@ class FlashcardScreen(Screen):
 
 
 class QuizScreen(Screen):
+    BINDINGS = [
+        Binding("escape", "close", "Close"),
+        Binding("enter", "next", "Next"),
+        Binding("1", "answer_1", "A"),
+        Binding("2", "answer_2", "B"),
+        Binding("3", "answer_3", "C"),
+        Binding("4", "answer_4", "D"),
+    ]
+
     def __init__(self, progress, phase, **kwargs):
         super().__init__(**kwargs)
         self.progress = progress
@@ -234,6 +237,8 @@ class QuizScreen(Screen):
         self.questions = []
         self.current_index = 0
         self.correct = 0
+        self._answered = False
+        self._advancing = False
 
     def compose(self) -> ComposeResult:
         yield Static("", id="quiz-header")
@@ -252,6 +257,7 @@ class QuizScreen(Screen):
         self._show_question()
 
     def _show_question(self) -> None:
+        self._answered = False
         if self.current_index >= len(self.questions):
             self._show_results()
             return
@@ -276,6 +282,11 @@ class QuizScreen(Screen):
 
         self.query_one("#quiz-feedback", RichLog).clear()
 
+    def _show_next_button(self) -> None:
+        opts = self.query_one("#quiz-options", Vertical)
+        opts.remove_children()
+        opts.mount(Button("Next Question", id="qopt-next", variant="primary"))
+
     def _show_results(self) -> None:
         self.query_one("#quiz-header", Static).update("[bold green]Quiz Complete![/]")
         self.query_one("#quiz-question", Static).update("")
@@ -287,13 +298,53 @@ class QuizScreen(Screen):
         if total > 0:
             pct = (self.correct / total) * 100
             fb.write(f"[bold]{pct:.0f}%[/]")
-            # Record this quiz session for tutor mastery tracking
             self.progress.record_quiz_attempt(self.phase.number, 0, self.correct, total)
         self.query_one("#quiz-progress", Static).update("")
 
+    def action_close(self) -> None:
+        self.app.pop_screen()
+
+    def action_next(self) -> None:
+        if self._advancing:
+            return
+        self._advancing = True
+        if self.current_index < len(self.questions):
+            self.current_index += 1
+            self._show_question()
+        self._advancing = False
+
+    def action_answer_1(self) -> None:
+        self._select_answer(0)
+
+    def action_answer_2(self) -> None:
+        self._select_answer(1)
+
+    def action_answer_3(self) -> None:
+        self._select_answer(2)
+
+    def action_answer_4(self) -> None:
+        self._select_answer(3)
+
+    def _select_answer(self, idx: int) -> None:
+        if self._answered:
+            return
+        self._answered = True
+        if not self.questions or self.current_index >= len(self.questions):
+            return
+        q = self.questions[self.current_index]
+        if not q.is_mcq:
+            return
+        fb = self.query_one("#quiz-feedback", RichLog)
+        if idx == q.answer_index:
+            fb.write("[bold green]Correct![/]")
+            self.correct += 1
+        else:
+            fb.write(f"[bold red]Incorrect.[/] Answer: {q.answer}")
+        self._show_next_button()
+
     def on_button_pressed(self, event) -> None:
         if event.button.id == "close-quiz":
-            self.app.pop_screen()
+            self.action_close()
             return
 
         if not self.questions or self.current_index >= len(self.questions):
@@ -302,6 +353,9 @@ class QuizScreen(Screen):
         q = self.questions[self.current_index]
 
         if event.button.id == "qopt-reveal":
+            if self._answered:
+                return
+            self._answered = True
             fb = self.query_one("#quiz-feedback", RichLog)
             fb.write(f"[bold]Answer:[/] {q.answer}")
             opts = self.query_one("#quiz-options", Vertical)
@@ -310,6 +364,9 @@ class QuizScreen(Screen):
             opts.mount(Button("No - got it wrong", id="qa-no", variant="error"))
 
         elif event.button.id and event.button.id.startswith("qopt-"):
+            if self._answered:
+                return
+            self._answered = True
             try:
                 choice = int(event.button.id.split("-")[1])
             except (ValueError, IndexError):
@@ -320,51 +377,125 @@ class QuizScreen(Screen):
                 self.correct += 1
             else:
                 fb.write(f"[bold red]Incorrect.[/] Answer: {q.answer}")
-            opts = self.query_one("#quiz-options", Vertical)
-            opts.remove_children()
-            opts.mount(Button("Next Question", id="qopt-next", variant="primary"))
+            self._show_next_button()
 
         elif event.button.id == "qa-yes":
+            if self._advancing:
+                return
+            self._advancing = True
             self.correct += 1
             self.current_index += 1
             self._show_question()
+            self._advancing = False
         elif event.button.id == "qa-no":
+            if self._advancing:
+                return
+            self._advancing = True
             self.current_index += 1
             self._show_question()
+            self._advancing = False
         elif event.button.id == "qopt-next":
+            if self._advancing:
+                return
+            self._advancing = True
             self.current_index += 1
             self._show_question()
+            self._advancing = False
 
 
 class SearchScreen(Screen):
+    BINDINGS = [
+        Binding("escape", "close", "Close"),
+        Binding("enter", "open_selected", "Open"),
+    ]
+
     def __init__(self, progress, **kwargs):
         super().__init__(**kwargs)
         self.progress = progress
+        self._results = []
 
     def compose(self) -> ComposeResult:
         yield Static("[bold cyan]Search[/]", id="search-title")
         yield Input(placeholder="Type search term...", id="search-input")
-        yield RichLog(id="search-results", highlight=True, markup=True)
+        yield ListView(id="search-results")
         yield Button("Close", id="close-search", variant="primary")
 
-    def on_input_submitted(self, event) -> None:
+    def on_input_changed(self, event) -> None:
         query = event.value.strip()
+        listview = self.query_one("#search-results", ListView)
+        listview.clear()
+        self._results = []
         if not query:
             return
-        log = self.query_one("#search-results", RichLog)
-        log.clear()
         phases = discover_phases()
-        results = search_content(query, phases)
-        if not results:
-            log.write(f"[yellow]No results for '{query}'[/]")
-            return
-        log.write(f"[bold]{len(results)} topics found:[/]\n")
-        for r in results[:15]:
-            log.write(f"\n[bold yellow]P{r['phase']}.{r['topic']}[/] {r['title']}")
-            for line_no, text in r["matches"][:3]:
-                truncated = text[:120] + "..." if len(text) > 120 else text
-                log.write(f"  [dim]L{line_no}:[/] {truncated}")
+        for p in phases:
+            for t in p.topics:
+                text = t.filepath.read_text(encoding="utf-8")
+                if query.lower() in text.lower() or query.lower() in t.title.lower():
+                    item = ListItem(Label(f"  P{p.number}.{t.number}  {t.title}"))
+                    item._topic_data = (p, t)
+                    listview.append(item)
+                    self._results.append((p, t))
+
+    def action_open_selected(self) -> None:
+        listview = self.query_one("#search-results", ListView)
+        if listview.index is not None and listview.index < len(self._results):
+            phase, topic = self._results[listview.index]
+            self._go_to_topic(phase, topic)
+
+    def on_list_view_selected(self, event) -> None:
+        if event.item and hasattr(event.item, '_topic_data'):
+            event.stop()
+            phase, topic = event.item._topic_data
+            self._go_to_topic(phase, topic)
+
+    def _go_to_topic(self, phase, topic) -> None:
+        from .sidebar import TopicSelected
+        self.app.post_message(TopicSelected(phase, topic))
+        self.app.pop_screen()
+
+    def action_close(self) -> None:
+        self.dismiss(None)
 
     def on_button_pressed(self, event) -> None:
         if event.button.id == "close-search":
-            self.app.pop_screen()
+            self.action_close()
+
+
+class HelpScreen(ModalScreen):
+    BINDINGS = [
+        Binding("escape", "close", "Close"),
+        Binding("q", "close", "Close"),
+        Binding("?", "close", "Close"),
+    ]
+
+    def compose(self) -> ComposeResult:
+        yield Static("[bold cyan]Keyboard Shortcuts[/]", id="help-title")
+        yield DataTable(id="help-table")
+        yield Button("Close", id="close-help", variant="primary")
+
+    def on_mount(self) -> None:
+        table = self.query_one("#help-table", DataTable)
+        table.add_columns("Key", "Action")
+        table.add_rows([
+            ("q", "Quit tutorial"),
+            ("?", "Open help"),
+            ("Ctrl+B", "Toggle sidebar panel"),
+            ("C", "Toggle content panel"),
+            ("Ctrl+F", "Search topics"),
+            ("Ctrl+Q", "Start quiz"),
+            ("Ctrl+Shift+F", "Open flashcards"),
+            ("Ctrl+T", "Open tutor dashboard"),
+            ("F5", "Run code"),
+            ("Up / Down", "Previous / Next topic"),
+            ("Left / Right", "Previous / Next section"),
+            ("Enter", "Confirm / Next question"),
+            ("Escape", "Close current screen"),
+        ])
+
+    def action_close(self) -> None:
+        self.app.pop_screen()
+
+    def on_button_pressed(self, event) -> None:
+        if event.button.id == "close-help":
+            self.action_close()
