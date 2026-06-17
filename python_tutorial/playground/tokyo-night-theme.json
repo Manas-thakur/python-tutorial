@@ -1,0 +1,72 @@
+{
+  "name": "tokyo-night",
+  "extends": "builtin://dark",
+  "editor": {
+    "bg": [26, 27, 38],
+    "fg": [169, 177, 214],
+    "cursor": [192, 202, 245],
+    "inactive_cursor": [86, 95, 137],
+    "selection_bg": [51, 70, 124],
+    "current_line_bg": [30, 32, 48],
+    "line_number_fg": [59, 66, 97],
+    "line_number_bg": [26, 27, 38],
+    "whitespace_fg": [59, 66, 97],
+    "diff_add_bg": [27, 59, 46],
+    "diff_remove_bg": [59, 32, 36],
+    "diff_modify_bg": [29, 49, 64]
+  },
+  "ui": {
+    "tab_active_fg": [192, 202, 245],
+    "tab_active_bg": [30, 32, 48],
+    "tab_inactive_fg": [86, 95, 137],
+    "tab_inactive_bg": [22, 22, 30],
+    "tab_separator_bg": [47, 59, 84],
+    "menu_bar_bg": [22, 22, 30],
+    "menu_bar_fg": [169, 177, 214],
+    "status_bar_bg": [30, 32, 48],
+    "status_bar_fg": [169, 177, 214],
+    "prompt_fg": [169, 177, 214],
+    "prompt_bg": [30, 32, 48],
+    "prompt_selection_fg": [192, 202, 245],
+    "prompt_selection_bg": [51, 70, 124],
+    "popup_border_fg": [47, 59, 84],
+    "popup_bg": [30, 32, 48],
+    "popup_selection_bg": [51, 70, 124],
+    "popup_text_fg": [169, 177, 214],
+    "suggestion_bg": [30, 32, 48],
+    "suggestion_selected_bg": [51, 70, 124],
+    "help_bg": [26, 27, 38],
+    "help_fg": [169, 177, 214],
+    "help_key_fg": [125, 207, 255],
+    "help_separator_fg": [47, 59, 84],
+    "help_indicator_fg": [247, 118, 142],
+    "help_indicator_bg": [26, 27, 38],
+    "split_separator_fg": [47, 59, 84],
+    "scrollbar_track_fg": [30, 32, 48],
+    "scrollbar_thumb_fg": [59, 66, 97]
+  },
+  "search": {
+    "match_fg": [26, 27, 38],
+    "match_bg": [224, 175, 104]
+  },
+  "diagnostic": {
+    "error_fg": [247, 118, 142],
+    "error_bg": [59, 32, 36],
+    "warning_fg": [224, 175, 104],
+    "warning_bg": [45, 40, 30],
+    "info_fg": [122, 162, 247],
+    "info_bg": [29, 49, 64],
+    "hint_fg": [86, 95, 137],
+    "hint_bg": [30, 32, 48]
+  },
+  "syntax": {
+    "keyword": [137, 221, 255],
+    "string": [158, 206, 106],
+    "comment": [86, 95, 137],
+    "function": [122, 162, 247],
+    "type": [224, 175, 104],
+    "variable": [192, 202, 245],
+    "constant": [187, 154, 247],
+    "operator": [137, 221, 255]
+  }
+}
