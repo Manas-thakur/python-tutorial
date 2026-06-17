@@ -277,18 +277,8 @@ class TutorialApp(App):
         from pathlib import Path
         import subprocess
         import os
-
-        playground_bin = Path(__file__).resolve().parent.parent / "playground" / "playground"
-        if not playground_bin.is_file():
-            self.notify(
-                "Playground binary not found. Reinstall the package.",
-                title="Playground",
-                timeout=5,
-            )
-            return
-
-        if not os.access(str(playground_bin), os.X_OK):
-            playground_bin.chmod(playground_bin.stat().st_mode | 0o111)
+        import sys
+        import shutil
 
         playground_dir = Path.home() / ".local" / "state" / "python-tutorial" / "playground"
         playground_dir.mkdir(parents=True, exist_ok=True)
@@ -297,6 +287,29 @@ class TutorialApp(App):
                 "# Python Playground\n# Write your project code here\n\nprint('Hello from Playground!')\n"
             )
 
+        if sys.platform == "linux":
+            playground_bin = Path(__file__).resolve().parent.parent / "playground" / "playground"
+            if not playground_bin.is_file():
+                self.notify(
+                    "Playground binary not found. Reinstall the package.",
+                    title="Playground",
+                    timeout=5,
+                )
+                return
+            if not os.access(str(playground_bin), os.X_OK):
+                playground_bin.chmod(playground_bin.stat().st_mode | 0o111)
+            fresh_cmd = [str(playground_bin), str(playground_dir)]
+        else:
+            fresh_path = shutil.which("fresh")
+            if fresh_path is None:
+                self.notify(
+                    "Fresh IDE not found. Install it with: npm install -g @fresh-editor/fresh-editor",
+                    title="Playground",
+                    timeout=8,
+                )
+                return
+            fresh_cmd = [fresh_path, str(playground_dir)]
+
         self.notify(
             f"Opening Playground in {playground_dir}",
             title="Playground",
@@ -304,7 +317,7 @@ class TutorialApp(App):
         )
         with self.suspend():
             subprocess.run(
-                [str(playground_bin), str(playground_dir)],
+                fresh_cmd,
                 cwd=playground_dir,
             )
 
