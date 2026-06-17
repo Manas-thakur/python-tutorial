@@ -11,7 +11,7 @@ from .sidebar import Sidebar, TopicSelected
 from .content_panel import ContentPanel
 from .code_panel import CodePanel
 from .status_bar import TutorialStatusBar
-from .screens import FlashcardScreen, QuizScreen, SearchScreen, TutorDashboardScreen, HelpScreen
+from .screens import FlashcardScreen, QuizScreen, SearchScreen, TutorDashboardScreen, HelpScreen, PlaygroundCheatSheetScreen
 
 
 class ConfirmScreen(Screen):
@@ -162,6 +162,39 @@ class TutorialApp(App):
     ConfirmScreen {
         align: center middle;
     }
+
+    PlaygroundCheatSheetScreen {
+        align: center middle;
+    }
+
+    PlaygroundCheatSheetScreen > #pcs-title {
+        height: auto;
+        text-style: bold;
+        text-align: center;
+    }
+
+    PlaygroundCheatSheetScreen > #pcs-subtitle {
+        height: auto;
+        text-align: center;
+        margin-bottom: 1;
+    }
+
+    PlaygroundCheatSheetScreen > #pcs-content {
+        width: 80%;
+        height: 80%;
+        overflow-y: auto;
+        overflow-x: auto;
+    }
+
+    PlaygroundCheatSheetScreen > #pcs-content .section-header {
+        height: auto;
+        margin-top: 1;
+        margin-bottom: 0;
+    }
+
+    PlaygroundCheatSheetScreen > #pcs-content .cheat-table {
+        height: auto;
+    }
     """
 
     BINDINGS = [
@@ -172,6 +205,7 @@ class TutorialApp(App):
         Binding("ctrl+q", "quiz", "Quiz", show=True),
         Binding("ctrl+shift+f", "flashcards", "Flashcards", show=True),
         Binding("ctrl+t", "tutor", "Tutor", show=True),
+        Binding("ctrl+shift+p", "playground_cheatsheet", "Play Keys", show=True),
         Binding("ctrl+b", "toggle_sidebar", "Sidebar", show=True),
         Binding("c", "toggle_content_panel", "Contents", show=True),
         Binding("?", "help", "Help", show=True),
@@ -297,6 +331,9 @@ class TutorialApp(App):
 
     def action_help(self) -> None:
         self.push_screen(HelpScreen())
+
+    def action_playground_cheatsheet(self) -> None:
+        self.push_screen(PlaygroundCheatSheetScreen())
 
     def action_reset_progress(self) -> None:
         def on_confirm(confirmed: bool):
