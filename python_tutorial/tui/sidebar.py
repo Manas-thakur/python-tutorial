@@ -1,6 +1,5 @@
 from textual.widgets import Tree
 from textual.message import Message
-from textual.reactive import reactive
 
 from ..content import discover_phases
 from ..models import Phase, Topic

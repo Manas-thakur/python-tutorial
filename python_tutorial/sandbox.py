@@ -6,9 +6,10 @@ from pathlib import Path
 from rich.console import Console
 from rich.panel import Panel
 from rich.syntax import Syntax
-from rich.prompt import Prompt
-
 from .themes import TokyoNightStyle
+
+# Maximum output characters from a sandboxed run.
+_MAX_OUTPUT = 100_000
 
 console = Console()
 
@@ -47,6 +48,9 @@ _BLOCKED_REASONS: dict[str, str] = {
     "Path.unlink": "File deletion is not allowed",
     "Path.rmdir": "Directory removal is not allowed",
     "Path.chmod": "Changing file permissions is not allowed",
+    "exec": "Dynamic code execution is blocked",
+    "eval": "Dynamic code evaluation is blocked",
+    "breakpoint": "Debugger access is not allowed",
 }
 
 # Prologue injected before user code in the sandbox subprocess.
@@ -70,6 +74,9 @@ def _block(name, _reasons=_blocked_reasons):
     return _blocked
 
 builtins.open = _block("open")
+builtins.exec = _block("exec")
+builtins.eval = _block("eval")
+builtins.breakpoint = _block("breakpoint")
 
 for _attr in ["system", "popen", "remove", "unlink", "rmdir", "chmod", "chown"]:
     if hasattr(os, _attr):
@@ -121,10 +128,13 @@ def run_code(code: str, timeout: int = 5) -> dict:
                 text=True,
                 timeout=timeout,
                 cwd=tmpdir,
+                stdin=subprocess.DEVNULL,
             )
+            stdout = result.stdout[:_MAX_OUTPUT] if len(result.stdout) > _MAX_OUTPUT else result.stdout
+            stderr = result.stderr[:_MAX_OUTPUT] if len(result.stderr) > _MAX_OUTPUT else result.stderr
             return {
-                "stdout": result.stdout,
-                "stderr": result.stderr,
+                "stdout": stdout,
+                "stderr": stderr,
                 "returncode": result.returncode,
                 "success": result.returncode == 0,
             }
@@ -180,11 +190,9 @@ def _show_result(result: dict):
     if result["stderr"]:
         console.print(f"[red]{result['stderr'].rstrip()}[/]")
         from .explainer import explain_error
-        expl = explain_error(result["stderr"], result["stderr"])
         from rich.prompt import Confirm
+        expl = explain_error(result["stderr"], result["stderr"])
         if Confirm.ask("[dim]Explain this error?[/]", default=True):
-            from rich.panel import Panel
-            from rich.markdown import Markdown
             lines = [
                 f"[bold yellow]{expl['title']}[/]",
                 f"\n{expl['explanation']}",

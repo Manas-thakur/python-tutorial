@@ -2,11 +2,11 @@ import random
 
 from textual.screen import Screen, ModalScreen
 from textual.widgets import Static, Button, Input, ListView, ListItem, Label, RichLog, DataTable
-from textual.containers import Container, Vertical, Horizontal
+from textual.containers import Vertical
 from textual.app import ComposeResult
 from textual.binding import Binding
 
-from ..content import discover_phases, get_quiz_questions, search_content
+from ..content import discover_phases, get_quiz_questions
 from ..tutor import AdaptiveTutor
 
 
@@ -101,7 +101,6 @@ class TutorDashboardScreen(Screen):
         if event.button.id == "close-tutor":
             self.app.pop_screen()
         elif event.button.id == "tutor-go-recommended" and self.recommendations:
-            rec = self.recommendations[0]
             self.app.pop_screen()
 
 
@@ -413,6 +412,8 @@ class SearchScreen(Screen):
         super().__init__(**kwargs)
         self.progress = progress
         self._results = []
+        self._search_timer = None
+        self._pending_query = ""
 
     def compose(self) -> ComposeResult:
         yield Static("[bold cyan]Search[/]", id="search-title")
@@ -421,7 +422,18 @@ class SearchScreen(Screen):
         yield Button("Close", id="close-search", variant="primary")
 
     def on_input_changed(self, event) -> None:
-        query = event.value.strip()
+        self._pending_query = event.value.strip()
+        if not self._pending_query:
+            self._results = []
+            self.query_one("#search-results", ListView).clear()
+            return
+        if self._search_timer is not None:
+            self._search_timer.reset()
+        else:
+            self._search_timer = self.set_timer(0.3, self._do_search)
+
+    def _do_search(self) -> None:
+        query = self._pending_query
         listview = self.query_one("#search-results", ListView)
         listview.clear()
         self._results = []

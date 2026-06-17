@@ -18,6 +18,7 @@ dependencies = [
     "typer>=0.9.0",
     "rich>=13.0.0",
     "textual>=1.0.0",
+    "pygments>=2.15.0",
 ]
 keywords = ["python", "tutorial", "cli", "learning", "interactive"]
 classifiers = [
@@ -25,10 +26,13 @@ classifiers = [
     "Environment :: Console",
     "Intended Audience :: Education",
     "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Topic :: Education",
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
@@ -37,6 +41,13 @@ classifiers = [
 python-tutorial = "python_tutorial.tui.app:main"
 pytut = "python_tutorial.tui.app:main"
 pytut-cli = "python_tutorial.cli:app"
+
+[project.urls]
+"Bug Tracker" = "https://github.com/Manas-thakur/python-tutorial/issues"
+"Source" = "https://github.com/Manas-thakur/python-tutorial"
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0", "ruff>=0.3", "mypy>=1.8"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["python_tutorial"]

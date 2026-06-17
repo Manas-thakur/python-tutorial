@@ -1,5 +1,5 @@
 import json
-import math
+from datetime import date, datetime, timedelta
 from pathlib import Path
 from typing import Optional
 
@@ -113,7 +113,7 @@ class ProgressTracker:
     # ── Streak ──
 
     def add_streak(self):
-        today = str(__import__("datetime").date.today())
+        today = str(date.today())
         streaks = self.data.setdefault("_streaks", [])
         if not streaks or streaks[-1] != today:
             streaks.append(today)
@@ -123,10 +123,10 @@ class ProgressTracker:
         streaks = self.data.get("_streaks", [])
         if not streaks:
             return 0
-        today = __import__("datetime").date.today()
+        today = date.today()
         count = 0
         for i in range(len(streaks) - 1, -1, -1):
-            expected = (today - __import__("datetime").timedelta(days=len(streaks) - 1 - i)).isoformat()
+            expected = (today - timedelta(days=len(streaks) - 1 - i)).isoformat()
             if streaks[i] == expected:
                 count += 1
             else:
@@ -208,7 +208,7 @@ class ProgressTracker:
         if topic_key not in mastery:
             mastery[topic_key] = {"attempts": [], "last_reviewed": None}
         mastery[topic_key]["attempts"].append({"correct": correct, "total": total})
-        mastery[topic_key]["last_reviewed"] = str(__import__("datetime").datetime.now())
+        mastery[topic_key]["last_reviewed"] = str(datetime.now())
         self._save()
 
     def get_mastery_score(self, phase: int, topic: int) -> float:
@@ -230,12 +230,11 @@ class ProgressTracker:
         success_rate = total_correct / total_questions
 
         # Recency factor: decay over time (older reviews count less)
-        import datetime
         last_reviewed = mastery[topic_key].get("last_reviewed")
         if last_reviewed:
             try:
-                last_date = datetime.datetime.fromisoformat(last_reviewed)
-                days_ago = (datetime.datetime.now() - last_date).days
+                last_date = datetime.fromisoformat(last_reviewed)
+                days_ago = (datetime.now() - last_date).days
                 recency = max(0.3, 1.0 - (days_ago * 0.05))  # Decay ~5% per day, floor at 0.3
             except (ValueError, TypeError):
                 recency = 1.0

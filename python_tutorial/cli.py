@@ -5,7 +5,6 @@ from pathlib import Path
 from typing import Optional
 
 import typer
-from rich.console import Console
 from rich.prompt import Prompt, Confirm
 from rich.table import Table
 from rich.panel import Panel
@@ -18,10 +17,10 @@ from .themes import TokyoNightStyle
 from .content import (
     discover_phases,
     get_phase,
-    get_topic,
     get_quiz_questions,
     search_content,
     get_revision_notes,
+    total_topics,
 )
 from .renderer import (
     console,
@@ -170,7 +169,7 @@ def _show_global_hints():
     completed = progress.get_total_completed()
     level = progress.get_level()
     xp = progress.get_xp()
-    console.print(f"[dim]{completed}/56 topics | Lv.{level} | {xp}XP{streak_text} | "
+    console.print(f"[dim]{completed}/{total_topics()} topics | Lv.{level} | {xp}XP{streak_text} | "
                   f"search, flashcards, sandbox, progress[/]")
 
 
