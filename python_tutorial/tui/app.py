@@ -368,6 +368,14 @@ class TutorialApp(App):
                 cwd=playground_dir,
             )
 
+        if sandbox_file.is_file():
+            fresh_code = sandbox_file.read_text().strip()
+            if fresh_code and fresh_code != sandbox_code:
+                try:
+                    code_panel.query_one("#code-editor").text = fresh_code
+                except Exception:
+                    pass
+
     def _seed_playground_projects(self, projects_dir: Path) -> None:
         projects_dir.mkdir(parents=True)
         starter_projects = {
