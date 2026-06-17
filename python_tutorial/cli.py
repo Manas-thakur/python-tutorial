@@ -14,6 +14,7 @@ from rich.markdown import Markdown
 from rich.syntax import Syntax
 
 from .models import Phase, Topic
+from .themes import TokyoNightStyle
 from .content import (
     discover_phases,
     get_phase,
@@ -289,7 +290,7 @@ def _extract_and_run(content: str):
         return
 
     console.print("\n[dim]--- Example code ---[/]")
-    console.print(Syntax(original, "python", theme="monokai"))
+    console.print(Syntax(original, "python", theme=TokyoNightStyle))
 
     choice = Prompt.ask(
         "[dim]Run as-is[/dim] [bold](r)[/bold][dim] or type it yourself[/dim] [bold](t)[/bold][dim]?[/dim]",
@@ -311,7 +312,7 @@ def _extract_and_run(content: str):
             if raw.strip().lower() == "done":
                 break
             if raw.strip().lower() == "show":
-                console.print(Syntax(original, "python", theme="monokai"))
+                console.print(Syntax(original, "python", theme=TokyoNightStyle))
                 continue
             lines.append(raw)
         if not lines:
@@ -328,7 +329,7 @@ def _extract_and_run(content: str):
         console.print(f"[red]{result['stderr'].rstrip()}[/]")
     if choice == "t" and code != original:
         console.print("[dim]--- Original was ---[/]")
-        console.print(Syntax(original, "python", theme="monokai"))
+        console.print(Syntax(original, "python", theme=TokyoNightStyle))
 
 
 def run_coding_challenge(phase_num: int, topic_num: int, title: str):
@@ -372,7 +373,7 @@ def run_coding_challenge(phase_num: int, topic_num: int, title: str):
 
         console.print("\n[bold]Output:[/]")
         if result["stdout"]:
-            console.print(Syntax(result["stdout"].rstrip(), "python", theme="monokai"))
+            console.print(Syntax(result["stdout"].rstrip(), "python", theme=TokyoNightStyle))
         if result["stderr"]:
             console.print(f"[red]{result['stderr'].rstrip()}[/]")
 

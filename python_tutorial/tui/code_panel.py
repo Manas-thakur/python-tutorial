@@ -4,6 +4,7 @@ from textual.containers import Vertical
 
 from ..sandbox import run_code
 from ..explainer import explain_error
+from .themes import make_tokyo_night_theme
 
 
 class CodePanel(Widget):
@@ -22,6 +23,11 @@ class CodePanel(Widget):
         yield Button("Run (F5)", id="run-btn", variant="primary")
         yield Static("[bold]Output:[/]", id="output-heading")
         yield RichLog(id="output-log", highlight=True, markup=True, max_lines=100)
+
+    def on_mount(self) -> None:
+        editor = self.query_one("#code-editor", TextArea)
+        editor.register_theme(make_tokyo_night_theme())
+        editor.theme = "tokyo-night"
 
     def load_topic(self, topic) -> None:
         self._topic = topic

@@ -11,7 +11,7 @@ from rich.prompt import Prompt, Confirm
 from pathlib import Path
 
 from .models import Phase, Topic, Section
-
+from .themes import TokyoNightStyle
 
 console = Console()
 
@@ -87,7 +87,7 @@ def render_section(section: Section, index: int, total: int, topic_title: str):
                 if not lang:
                     lang = "python"
                 try:
-                    syntax = Syntax(code.strip(), lang, theme="monokai", line_numbers=False)
+                    syntax = Syntax(code.strip(), lang, theme=TokyoNightStyle, line_numbers=False)
                     console.print(Panel(syntax, border_style="bright_blue"))
                 except Exception:
                     console.print(Panel(code.strip(), border_style="bright_blue"))

@@ -619,6 +619,7 @@ def show_challenge(challenge: Challenge, console) -> None:
     from rich.panel import Panel
     from rich.syntax import Syntax
     from rich.markdown import Markdown as RichMD
+    from .themes import TokyoNightStyle
 
     difficulty_colors = {"easy": "green", "medium": "yellow", "hard": "red"}
     color = difficulty_colors.get(challenge.difficulty, "cyan")
@@ -627,4 +628,4 @@ def show_challenge(challenge: Challenge, console) -> None:
     console.print(md)
     if challenge.template:
         console.print("\n[bold]Starting code:[/]")
-        console.print(Syntax(challenge.template.strip(), "python", theme="monokai"))
+        console.print(Syntax(challenge.template.strip(), "python", theme=TokyoNightStyle))

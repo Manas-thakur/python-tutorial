@@ -8,6 +8,8 @@ from rich.panel import Panel
 from rich.syntax import Syntax
 from rich.prompt import Prompt
 
+from .themes import TokyoNightStyle
+
 console = Console()
 
 BLOCKED_IMPORTS = {
@@ -98,7 +100,7 @@ def sandbox_loop():
 
 def _show_result(result: dict):
     if result["stdout"]:
-        console.print(Syntax(result["stdout"].rstrip(), "python", theme="monokai", word_wrap=True))
+        console.print(Syntax(result["stdout"].rstrip(), "python", theme=TokyoNightStyle, word_wrap=True))
     if result["stderr"]:
         console.print(f"[red]{result['stderr'].rstrip()}[/]")
         from .explainer import explain_error
