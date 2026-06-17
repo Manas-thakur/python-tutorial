@@ -15,9 +15,6 @@ console = Console()
 # Commands blocked in the sandbox with explanations for each.
 _BLOCKED_REASONS: dict[str, str] = {
     "open": "File access is not allowed (use print() for output)",
-    "eval": "Dynamic code execution (eval) is not allowed",
-    "exec": "Dynamic code execution (exec) is not allowed",
-    "compile": "Dynamic code execution (compile) is not allowed",
     "os.system": "Running shell commands is not allowed",
     "os.popen": "Running shell commands is not allowed",
     "os.remove": "File deletion is not allowed",
@@ -37,7 +34,14 @@ _BLOCKED_REASONS: dict[str, str] = {
     "ctypes.CDLL": "Loading native libraries is not allowed",
     "ctypes.WinDLL": "Loading native libraries is not allowed",
     "ctypes.PyDLL": "Loading native libraries is not allowed",
-    "socket.socket": "Network access is not allowed",
+    "socket.connect": "Network connections are not allowed",
+    "socket.connect_ex": "Network connections are not allowed",
+    "socket.send": "Network access is not allowed",
+    "socket.sendall": "Network access is not allowed",
+    "socket.sendto": "Network access is not allowed",
+    "socket.bind": "Network server sockets are not allowed",
+    "socket.listen": "Network server sockets are not allowed",
+    "socket.accept": "Network server sockets are not allowed",
     "Path.write_text": "Writing files is not allowed",
     "Path.write_bytes": "Writing files is not allowed",
     "Path.unlink": "File deletion is not allowed",
@@ -59,16 +63,13 @@ for _name, _reason in _BLOCKED_REASONS.items():
     _SANDBOX_PROLOGUE += f"    {_name!r}: {_reason!r},\n"
 _SANDBOX_PROLOGUE += """}
 
-def _block(name):
+def _block(name, _reasons=_blocked_reasons):
     def _blocked(*args, **kwargs):
-        raise RuntimeError(f"`{name}()` blocked: " + _blocked_reasons[name])
+        raise RuntimeError(f"`{name}()` blocked: " + _reasons[name])
     _blocked.__name__ = name.split('.')[-1]
     return _blocked
 
 builtins.open = _block("open")
-builtins.eval = _block("eval")
-builtins.exec = _block("exec")
-builtins.compile = _block("compile")
 
 for _attr in ["system", "popen", "remove", "unlink", "rmdir", "chmod", "chown"]:
     if hasattr(os, _attr):
@@ -87,7 +88,9 @@ for _attr in ["CDLL", "WinDLL", "PyDLL"]:
         setattr(ctypes, _attr, _block(f"ctypes.{_attr}"))
 
 if hasattr(socket, "socket"):
-    socket.socket = _block("socket.socket")
+    for _attr in ["connect", "connect_ex", "send", "sendall", "sendto", "bind", "listen", "accept"]:
+        if hasattr(socket.socket, _attr):
+            setattr(socket.socket, _attr, _block(f"socket.{_attr}"))
 
 for _attr in ["write_text", "write_bytes", "unlink", "rmdir", "chmod"]:
     if hasattr(Path, _attr):
