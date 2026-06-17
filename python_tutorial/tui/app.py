@@ -11,7 +11,7 @@ from .sidebar import Sidebar, TopicSelected
 from .content_panel import ContentPanel
 from .code_panel import CodePanel
 from .status_bar import TutorialStatusBar
-from .screens import FlashcardScreen, QuizScreen, SearchScreen, TutorDashboardScreen, HelpScreen
+from .screens import FlashcardScreen, QuizScreen, SearchScreen, TutorDashboardScreen, HelpScreen, PlaygroundCheatSheetScreen
 
 
 class ConfirmScreen(Screen):
@@ -162,6 +162,39 @@ class TutorialApp(App):
     ConfirmScreen {
         align: center middle;
     }
+
+    PlaygroundCheatSheetScreen {
+        align: center middle;
+    }
+
+    PlaygroundCheatSheetScreen > #pcs-title {
+        height: auto;
+        text-style: bold;
+        text-align: center;
+    }
+
+    PlaygroundCheatSheetScreen > #pcs-subtitle {
+        height: auto;
+        text-align: center;
+        margin-bottom: 1;
+    }
+
+    PlaygroundCheatSheetScreen > #pcs-content {
+        width: 80%;
+        height: 80%;
+        overflow-y: auto;
+        overflow-x: auto;
+    }
+
+    PlaygroundCheatSheetScreen > #pcs-content .section-header {
+        height: auto;
+        margin-top: 1;
+        margin-bottom: 0;
+    }
+
+    PlaygroundCheatSheetScreen > #pcs-content .cheat-table {
+        height: auto;
+    }
     """
 
     BINDINGS = [
@@ -172,6 +205,7 @@ class TutorialApp(App):
         Binding("ctrl+q", "quiz", "Quiz", show=True),
         Binding("ctrl+shift+f", "flashcards", "Flashcards", show=True),
         Binding("ctrl+t", "tutor", "Tutor", show=True),
+        Binding("ctrl+shift+p", "playground_cheatsheet", "Play Keys", show=True),
         Binding("ctrl+b", "toggle_sidebar", "Sidebar", show=True),
         Binding("c", "toggle_content_panel", "Contents", show=True),
         Binding("?", "help", "Help", show=True),
@@ -244,30 +278,7 @@ class TutorialApp(App):
         import subprocess
         import os
         import sys
-
-        if sys.platform == "linux":
-            bin_name = "playground"
-        elif sys.platform == "win32":
-            bin_name = "playground.exe"
-        else:
-            self.notify(
-                "Playground is only supported on Linux and Windows.",
-                title="Playground",
-                timeout=5,
-            )
-            return
-
-        playground_bin = Path(__file__).resolve().parent.parent / "playground" / bin_name
-        if not playground_bin.is_file():
-            self.notify(
-                "Playground binary not found. Reinstall the package.",
-                title="Playground",
-                timeout=5,
-            )
-            return
-
-        if not os.access(str(playground_bin), os.X_OK):
-            playground_bin.chmod(playground_bin.stat().st_mode | 0o111)
+        import shutil
 
         playground_dir = Path.home() / ".local" / "state" / "python-tutorial" / "playground"
         playground_dir.mkdir(parents=True, exist_ok=True)
@@ -276,6 +287,36 @@ class TutorialApp(App):
                 "# Python Playground\n# Write your project code here\n\nprint('Hello from Playground!')\n"
             )
 
+        if sys.platform == "linux":
+            bin_name = "playground"
+        elif sys.platform == "win32":
+            bin_name = "playground.exe"
+        else:
+            bin_name = None
+
+        if bin_name is not None:
+            playground_bin = Path(__file__).resolve().parent.parent / "playground" / bin_name
+            if not playground_bin.is_file():
+                self.notify(
+                    "Playground binary not found. Reinstall the package.",
+                    title="Playground",
+                    timeout=5,
+                )
+                return
+            if not os.access(str(playground_bin), os.X_OK):
+                playground_bin.chmod(playground_bin.stat().st_mode | 0o111)
+            fresh_cmd = [str(playground_bin), str(playground_dir)]
+        else:
+            fresh_path = shutil.which("fresh")
+            if fresh_path is None:
+                self.notify(
+                    "Fresh IDE not found. Install it with: npm install -g @fresh-editor/fresh-editor",
+                    title="Playground",
+                    timeout=8,
+                )
+                return
+            fresh_cmd = [fresh_path, str(playground_dir)]
+
         self.notify(
             f"Opening Playground in {playground_dir}",
             title="Playground",
@@ -283,7 +324,7 @@ class TutorialApp(App):
         )
         with self.suspend():
             subprocess.run(
-                [str(playground_bin), str(playground_dir)],
+                fresh_cmd,
                 cwd=playground_dir,
             )
 
@@ -310,6 +351,9 @@ class TutorialApp(App):
 
     def action_help(self) -> None:
         self.push_screen(HelpScreen())
+
+    def action_playground_cheatsheet(self) -> None:
+        self.push_screen(PlaygroundCheatSheetScreen())
 
     def action_reset_progress(self) -> None:
         def on_confirm(confirmed: bool):
