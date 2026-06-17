@@ -243,6 +243,26 @@ class TutorialApp(App):
         from pathlib import Path
         import subprocess
         import sys
+        import shutil
+
+        fresh_path = shutil.which("fresh")
+        if fresh_path is None:
+            def _on_confirm(confirmed: bool):
+                if confirmed:
+                    self._install_fresh()
+            self.push_screen(
+                ConfirmScreen(
+                    "Fresh IDE Not Found",
+                    "Fresh IDE is required for the playground.\n\n"
+                    "Install it with:\n"
+                    "  curl https://raw.githubusercontent.com/sinelaw/fresh/refs/heads/master/scripts/install.sh | sh\n\n"
+                    "Or via npm:\n"
+                    "  npm install -g @fresh-editor/fresh-editor\n\n"
+                    "Install now via npx (no install needed)?",
+                    _on_confirm,
+                )
+            )
+            return
 
         playground_dir = Path.home() / ".local" / "state" / "python-tutorial" / "playground"
         playground_dir.mkdir(parents=True, exist_ok=True)
@@ -261,6 +281,11 @@ class TutorialApp(App):
                 ["fresh", str(playground_dir)],
                 cwd=playground_dir,
             )
+
+    def _install_fresh(self) -> None:
+        import webbrowser
+        webbrowser.open("https://getfresh.dev/")
+        self.notify("Visit https://getfresh.dev/ for install instructions, then press F2 again.", title="Playground", timeout=5)
 
     def action_search(self) -> None:
         self.push_screen(SearchScreen(self.progress))
