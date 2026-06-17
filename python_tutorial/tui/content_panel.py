@@ -2,7 +2,7 @@ from textual.widgets import Static, Markdown, Button
 from textual.containers import Horizontal, VerticalScroll
 from textual.binding import Binding
 
-from ..models import Topic, Phase
+from ..models import Topic
 from ..content import discover_phases
 from .sidebar import TopicSelected
 
@@ -25,9 +25,9 @@ class ContentPanel(VerticalScroll):
         yield Static("", id="section-heading")
         with VerticalScroll(id="section-body"):
             yield Markdown("Select a topic from the sidebar", id="content-markdown")
-        with Horizontal(id="topic-nav-buttons"):
-            yield Button("< Prev Topic", id="prev-topic-btn", variant="default")
-            yield Button("Next Topic >", id="next-topic-btn", variant="primary")
+        with Horizontal(id="section-nav"):
+            yield Button("< Prev", id="prev-section", variant="default")
+            yield Button("Next >", id="next-section", variant="primary")
 
     def _get_sibling_topic(self, direction: int) -> tuple | None:
         if not self._topic:
@@ -52,7 +52,6 @@ class ContentPanel(VerticalScroll):
         self._sections = topic.sections
         self._current_index = 0
         self._show_section()
-        self._update_nav_buttons()
 
     def _show_section(self) -> None:
         if not self._sections:
@@ -65,12 +64,8 @@ class ContentPanel(VerticalScroll):
             f"[bold cyan][{self._current_index + 1}/{len(self._sections)}] {section.heading}[/]"
         )
         self.query_one("#content-markdown", Markdown).update(section.content)
-
-    def _update_nav_buttons(self) -> None:
-        prev_topic = self.query_one("#prev-topic-btn", Button)
-        next_topic = self.query_one("#next-topic-btn", Button)
-        prev_topic.disabled = self._get_sibling_topic(-1) is None
-        next_topic.disabled = self._get_sibling_topic(1) is None
+        self.query_one("#prev-section", Button).disabled = self._current_index == 0
+        self.query_one("#next-section", Button).disabled = self._current_index >= len(self._sections) - 1
 
     def action_next_section(self) -> None:
         if self._sections and self._current_index < len(self._sections) - 1:
@@ -95,10 +90,10 @@ class ContentPanel(VerticalScroll):
             self.app.post_message(TopicSelected(phase, topic))
 
     def on_button_pressed(self, event) -> None:
-        if event.button.id == "next-topic-btn":
-            self.action_next_topic()
-        elif event.button.id == "prev-topic-btn":
-            self.action_prev_topic()
+        if event.button.id == "next-section":
+            self.action_next_section()
+        elif event.button.id == "prev-section":
+            self.action_prev_section()
 
     def clear(self) -> None:
         self._topic = None

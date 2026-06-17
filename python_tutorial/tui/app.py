@@ -112,15 +112,8 @@ class TutorialApp(App):
     }
 
 
-    #topic-nav-buttons {
-        height: 3;
-        align: center middle;
-        margin: 0 0 1 0;
-    }
-
-    #topic-nav-buttons > Button {
-        margin: 0 1;
-        min-width: 18;
+    ContentPanel > #section-nav {
+        height: auto;
     }
 
     MainContainer > CodePanel {
