@@ -166,6 +166,7 @@ class TutorialApp(App):
 
     BINDINGS = [
         Binding("q", "quit", "Quit", show=True),
+        Binding("f2", "playground", "Playground", show=True),
         Binding("f5", "run_code", "Run", show=True),
         Binding("ctrl+f", "search", "Search", show=True),
         Binding("ctrl+q", "quiz", "Quiz", show=True),
@@ -237,6 +238,29 @@ class TutorialApp(App):
 
     def action_run_code(self) -> None:
         self.query_one(CodePanel).run_code()
+
+    def action_playground(self) -> None:
+        from pathlib import Path
+        import subprocess
+        import sys
+
+        playground_dir = Path.home() / ".local" / "state" / "python-tutorial" / "playground"
+        playground_dir.mkdir(parents=True, exist_ok=True)
+        if not any(playground_dir.iterdir()):
+            (playground_dir / "main.py").write_text(
+                "# Python Playground\n# Write your project code here\n\nprint('Hello from Playground!')\n"
+            )
+
+        self.notify(
+            f"Opening Fresh IDE in {playground_dir}",
+            title="Playground",
+            timeout=3,
+        )
+        with self.suspend():
+            subprocess.run(
+                ["fresh", str(playground_dir)],
+                cwd=playground_dir,
+            )
 
     def action_search(self) -> None:
         self.push_screen(SearchScreen(self.progress))

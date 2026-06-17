@@ -486,6 +486,7 @@ class HelpScreen(ModalScreen):
             ("Ctrl+Q", "Start quiz"),
             ("Ctrl+Shift+F", "Open flashcards"),
             ("Ctrl+T", "Open tutor dashboard"),
+            ("F2", "Open playground (Fresh IDE)"),
             ("F5", "Run code"),
             ("Up / Down", "Previous / Next topic"),
             ("Left / Right", "Previous / Next section"),
