@@ -65,7 +65,6 @@ class AdaptiveTutor:
             if not self.progress.is_phase_unlocked(phase.number):
                 continue
             for topic in phase.topics:
-                key = (phase.number, topic.number)
                 level = self.progress.get_topic_mastery_level(phase.number, topic.number)
 
                 if level == "not_attempted":

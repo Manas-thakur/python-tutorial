@@ -1,6 +1,5 @@
 from textual.widgets import TextArea, Button, RichLog, Static
 from textual.widget import Widget
-from textual.containers import Vertical
 
 from ..sandbox import run_code
 from ..explainer import explain_error

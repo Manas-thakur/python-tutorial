@@ -241,3 +241,8 @@ def get_revision_notes(topic: Topic) -> Optional[str]:
         if s.heading.lower().strip() == "revision notes":
             return s.content
     return None
+
+
+def total_topics() -> int:
+    """Return the total number of topics across all phases."""
+    return sum(len(p.topics) for p in discover_phases())

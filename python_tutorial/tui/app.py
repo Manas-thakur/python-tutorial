@@ -9,7 +9,7 @@ from textual.containers import Container
 from ..progress import ProgressTracker
 from ..session import SessionState, save_session, load_session
 from ..content import discover_phases
-from .sidebar import Sidebar, TopicSelected
+from .sidebar import Sidebar
 from .content_panel import ContentPanel
 from .code_panel import CodePanel
 from .status_bar import TutorialStatusBar
@@ -280,7 +280,6 @@ class TutorialApp(App):
         import os
         import sys
         import json
-        import shutil
 
         if sys.platform == "linux":
             bin_name = "playground"
@@ -334,7 +333,10 @@ class TutorialApp(App):
 
         sandbox_file = playground_dir / "sandbox-code.py"
         code_panel = self.query_one(CodePanel)
-        sandbox_code = code_panel.query_one("#code-editor").text.strip()
+        try:
+            sandbox_code = code_panel.query_one("#code-editor").text.strip()
+        except Exception:
+            sandbox_code = ""
         if sandbox_code:
             sandbox_file.write_text(sandbox_code)
 

@@ -4,7 +4,6 @@ import time
 from rich.console import Console
 from rich.panel import Panel
 from rich.prompt import Prompt
-from rich.table import Table
 
 from .content import discover_phases, get_quiz_questions
 
@@ -84,5 +83,8 @@ def run_flashcard_session(phase_number: int = None):
         for qa in [(qq[qi].question, qq[qi].answer)] if r <= 2
     ][:3]
 
-    for i, (q, a) in enumerate(weak_cards, 1):
-        pass
+    if weak_cards:
+        console.print("\n[bold yellow]Review these weak cards:[/]")
+        for i, (q, a) in enumerate(weak_cards, 1):
+            console.print(f"  {i}. [dim]Q:[/] {q}")
+            console.print(f"     [dim]A:[/] {a}")

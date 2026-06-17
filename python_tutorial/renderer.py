@@ -4,11 +4,7 @@ from rich.markdown import Markdown
 from rich.table import Table
 from rich.syntax import Syntax
 from rich.text import Text
-from rich.style import Style
 from rich.box import ROUNDED
-from rich.progress import Progress, BarColumn, TextColumn
-from rich.prompt import Prompt, Confirm
-from pathlib import Path
 
 from .models import Phase, Topic, Section
 from .themes import TokyoNightStyle

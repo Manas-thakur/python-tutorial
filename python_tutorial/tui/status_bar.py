@@ -1,6 +1,8 @@
 from textual.widgets import Static, ProgressBar
 from textual.containers import Container, Horizontal
 
+from ..content import total_topics
+
 
 class TutorialStatusBar(Container):
     def __init__(self, progress, **kwargs):
@@ -34,7 +36,7 @@ class TutorialStatusBar(Container):
         self.query_one("#status-level", Static).update(f"Lvl {level}")
         self.query_one("#status-xp", Static).update(f"XP {xp}/{info['xp_needed']}")
         self.query_one("#status-xp-bar", ProgressBar).progress = int(xp_progress * 100)
-        self.query_one("#status-topics", Static).update(f"Topics {completed}/56")
+        self.query_one("#status-topics", Static).update(f"Topics {completed}/{total_topics()}")
 
         streak_text = f"Streak {streak}d" if streak else ""
         self.query_one("#status-streak", Static).update(streak_text)
