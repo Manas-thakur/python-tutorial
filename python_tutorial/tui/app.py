@@ -278,44 +278,67 @@ class TutorialApp(App):
         import subprocess
         import os
         import sys
+        import json
         import shutil
-
-        playground_dir = Path.home() / ".local" / "state" / "python-tutorial" / "playground"
-        playground_dir.mkdir(parents=True, exist_ok=True)
-        if not any(playground_dir.iterdir()):
-            (playground_dir / "main.py").write_text(
-                "# Python Playground\n# Write your project code here\n\nprint('Hello from Playground!')\n"
-            )
 
         if sys.platform == "linux":
             bin_name = "playground"
         elif sys.platform == "win32":
             bin_name = "playground.exe"
         else:
-            bin_name = None
+            self.notify(
+                "Playground is only supported on Linux and Windows.",
+                title="Playground",
+                timeout=5,
+            )
+            return
 
-        if bin_name is not None:
-            playground_bin = Path(__file__).resolve().parent.parent / "playground" / bin_name
-            if not playground_bin.is_file():
-                self.notify(
-                    "Playground binary not found. Reinstall the package.",
-                    title="Playground",
-                    timeout=5,
-                )
-                return
-            if not os.access(str(playground_bin), os.X_OK):
-                playground_bin.chmod(playground_bin.stat().st_mode | 0o111)
-            fresh_cmd = [str(playground_bin), str(playground_dir)]
-        else:
-            fresh_path = shutil.which("fresh")
-            if fresh_path is None:
-                self.notify(
-                    "Fresh IDE not found. Install it with: npm install -g @fresh-editor/fresh-editor",
-                    title="Playground",
-                    timeout=8,
-                )
-                return
-            fresh_cmd = [fresh_path, str(playground_dir)]
+        playground_bin = Path(__file__).resolve().parent.parent / "playground" / bin_name
+        if not playground_bin.is_file():
+            self.notify(
+                "Playground binary not found. Reinstall the package.",
+                title="Playground",
+                timeout=5,
+            )
+            return
+
+        if not os.access(str(playground_bin), os.X_OK):
+            playground_bin.chmod(playground_bin.stat().st_mode | 0o111)
+
+        playground_dir = Path.home() / ".local" / "state" / "python-tutorial" / "playground"
+        playground_dir.mkdir(parents=True, exist_ok=True)
+
+        projects_dir = playground_dir / "projects"
+        if not projects_dir.is_dir():
+            self._seed_playground_projects(projects_dir)
+
+        if not (playground_dir / "main.py").is_file():
+            (playground_dir / "main.py").write_text(
+                "# Python Playground\n# Write your project code here\n\nprint('Hello from Playground!')\n"
+            )
+
+        sandbox_file = playground_dir / "sandbox-code.py"
+        code_panel = self.query_one(CodePanel)
+        sandbox_code = code_panel.query_one("#code-editor").text.strip()
+        if sandbox_code:
+            sandbox_file.write_text(sandbox_code)
+
+        open_files = [str(playground_dir / "main.py")]
+        if sandbox_code:
+            open_files.insert(0, str(sandbox_file))
+
+        theme_path = Path(__file__).resolve().parent.parent / "playground" / "tokyo-night-theme.json"
+        config_path = playground_dir / "playground-config.json"
+        config_path.write_text(json.dumps({
+            "theme": theme_path.as_uri(),
+            "keybindings": [
+                {
+                    "key": "t",
+                    "modifiers": ["ctrl", "shift"],
+                    "action": "quit",
+                },
+            ],
+        }))
 
         self.notify(
             f"Opening Playground in {playground_dir}",
@@ -324,9 +347,47 @@ class TutorialApp(App):
         )
         with self.suspend():
             subprocess.run(
-                fresh_cmd,
+                [str(playground_bin), "--config", str(config_path), *open_files],
                 cwd=playground_dir,
             )
+
+    def _seed_playground_projects(self, projects_dir: Path) -> None:
+        projects_dir.mkdir(parents=True)
+        starter_projects = {
+            "phase-1-fundamentals": {
+                "README.md": "# Phase 1: Python Fundamentals\n\nPractice variables, data types, conditionals, and loops.\n\n## Getting Started\n- Open hello.py and complete the exercises\n- Run with F5 in Fresh or `python hello.py` in the terminal",
+                "hello.py": "# Phase 1: Python Fundamentals\n# Practice: variables, types, conditionals, loops\n\nname = input(\"What's your name? \")\nprint(f\"Hello, {name}!\")\n\n# TODO: Ask for their age and print the year they were born\n",
+            },
+            "phase-2-core-python": {
+                "README.md": "# Phase 2: Core Python\n\nPractice strings, lists, dicts, functions, and error handling.\n\n## Exercises\n- Open data_types.py and complete each section\n- Test edge cases with invalid input",
+                "data_types.py": "# Phase 2: Core Python\n# Practice: strings, lists, dicts, functions\n\ndef analyze_text(text: str) -> dict:\n    \"\"\"Return word count, char count, and unique words.\"\"\"\n    # TODO: Implement this function\n    pass\n\n\n# Test your function\nsample = \"Hello world! Hello Python!\"\nprint(analyze_text(sample))\n",
+            },
+            "phase-3-oop": {
+                "README.md": "# Phase 3: Object-Oriented Programming\n\nPractice classes, inheritance, polymorphism, and dunder methods.\n\n## Exercises\n- Open classes.py and implement the BankAccount class\n- Add a SavingsAccount subclass with interest",
+                "classes.py": "# Phase 3: OOP\n# Practice: classes, inheritance, dunder methods\n\nclass BankAccount:\n    def __init__(self, owner: str, balance: float = 0.0):\n        self.owner = owner\n        self.balance = balance\n\n    def deposit(self, amount: float) -> None:\n        # TODO: Add amount to balance\n        pass\n\n    def withdraw(self, amount: float) -> bool:\n        # TODO: Deduct amount if sufficient balance\n        pass\n\n    def __str__(self) -> str:\n        return f\"{self.owner}'s account: ${self.balance:.2f}\"\n",
+            },
+            "phase-4-intermediate": {
+                "README.md": "# Phase 4: Intermediate Python\n\nPractice decorators, generators, context managers, and itertools.\n\n## Starter\nCreate your own decorator or generator below.",
+                "intermediate.py": "# Phase 4: Intermediate Python\n# Practice: decorators, generators, context managers\n\nfrom contextlib import contextmanager\nimport time\n\n\n@contextmanager\ndef timer(label: str = \"\"):\n    # TODO: Measure and print elapsed time\n    pass\n\n\n# Test your context manager\nwith timer(\"sleep\"):\n    time.sleep(0.5)\n",
+            },
+            "phase-5-advanced": {
+                "README.md": "# Phase 5: Advanced Python\n\nPractice metaclasses, descriptors, async/await, and concurrency.\n\n## Starter\nImplement an async fetcher below.",
+                "advanced.py": "# Phase 5: Advanced Python\n# Practice: async/await, concurrency\n\nimport asyncio\n\n\nasync def fetch_data(url: str) -> str:\n    # TODO: Simulate fetching data from a URL\n    await asyncio.sleep(1)\n    return f\"Data from {url}\"\n\n\nasync def main():\n    # TODO: Fetch multiple URLs concurrently\n    pass\n\n\nasyncio.run(main())\n",
+            },
+            "phase-6-engineering": {
+                "README.md": "# Phase 6: Python for Engineering\n\nPractice testing, profiling, packaging, and CLI tools.\n\n## Starter\nWrite tests and a small CLI tool.",
+                "cli_tool.py": "# Phase 6: Python for Engineering\n# Practice: CLI tools, testing\n\nimport argparse\n\n\ndef main():\n    parser = argparse.ArgumentParser(description=\"A useful CLI tool\")\n    # TODO: Add arguments\n    args = parser.parse_args()\n    print(args)\n\n\nif __name__ == \"__main__\":\n    main()\n",
+            },
+            "phase-7-ai": {
+                "README.md": "# Phase 7: Python for AI Engineering\n\nPractice numpy, data pipelines, and ML concepts.\n\n## Starter\nImplement a simple data pipeline below.",
+                "pipeline.py": "# Phase 7: Python for AI Engineering\n# Practice: data processing pipelines\n\ndef load_data(path: str) -> list[dict]:\n    # TODO: Load data from a CSV or JSON file\n    pass\n\n\ndef clean_data(records: list[dict]) -> list[dict]:\n    # TODO: Remove invalid records, fill missing values\n    pass\n\n\ndef transform_data(records: list[dict]) -> list[dict]:\n    # TODO: Normalize fields, create derived features\n    pass\n",
+            },
+        }
+        for project_name, files in starter_projects.items():
+            project_dir = projects_dir / project_name
+            project_dir.mkdir()
+            for filename, content in files.items():
+                (project_dir / filename).write_text(content.lstrip("\n"))
 
     def action_search(self) -> None:
         self.push_screen(SearchScreen(self.progress))
