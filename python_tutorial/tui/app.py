@@ -288,7 +288,14 @@ class TutorialApp(App):
             )
 
         if sys.platform == "linux":
-            playground_bin = Path(__file__).resolve().parent.parent / "playground" / "playground"
+            bin_name = "playground"
+        elif sys.platform == "win32":
+            bin_name = "playground.exe"
+        else:
+            bin_name = None
+
+        if bin_name is not None:
+            playground_bin = Path(__file__).resolve().parent.parent / "playground" / bin_name
             if not playground_bin.is_file():
                 self.notify(
                     "Playground binary not found. Reinstall the package.",
