@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from textual.app import App, ComposeResult
 from textual.binding import Binding
 from textual.screen import Screen
@@ -274,7 +276,6 @@ class TutorialApp(App):
         self.query_one(CodePanel).run_code()
 
     def action_playground(self) -> None:
-        from pathlib import Path
         import subprocess
         import os
         import sys
