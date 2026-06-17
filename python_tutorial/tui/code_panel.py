@@ -28,6 +28,7 @@ class CodePanel(Widget):
         editor = self.query_one("#code-editor", TextArea)
         editor.register_theme(make_tokyo_night_theme())
         editor.theme = "tokyo-night"
+        editor.focus()
 
     def load_topic(self, topic) -> None:
         self._topic = topic

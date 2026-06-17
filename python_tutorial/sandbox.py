@@ -13,10 +13,10 @@ from .themes import TokyoNightStyle
 console = Console()
 
 BLOCKED_IMPORTS = {
-    "os", "subprocess", "sys", "shutil", "signal", "ctypes",
-    "socket", "http", "urllib", "requests", "pathlib",
-    "importlib", "__builtins__", "eval", "exec", "compile",
-    "open", "file",
+    "os", "subprocess", "shutil", "signal", "ctypes",
+    "socket", "http", "urllib", "requests",
+    "importlib", "builtins", "__builtins__",
+    "eval", "exec", "compile", "open", "file",
 }
 
 
@@ -26,7 +26,7 @@ def run_code(code: str, timeout: int = 5) -> dict:
         filepath = Path(tmpdir) / "script.py"
         blocked_set = sorted(BLOCKED_IMPORTS)
         template = (
-            "import sys, math, random, json, re, collections, itertools, string, datetime, fractions, decimal, statistics\n"
+            "import sys, math, random, json, re, collections, itertools, string, datetime, fractions, decimal, statistics, pathlib\n"
             "from typing import List, Dict, Tuple, Optional, Union, Any\n"
             f"_BLOCKED = {blocked_set!r}\n"
             "_original_import = __builtins__.__import__\n"
