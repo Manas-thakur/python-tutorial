@@ -462,6 +462,143 @@ class SearchScreen(Screen):
             self.action_close()
 
 
+class PlaygroundCheatSheetScreen(ModalScreen):
+    BINDINGS = [
+        Binding("escape", "close", "Close"),
+        Binding("q", "close", "Close"),
+        Binding("ctrl+shift+p", "close", "Close"),
+    ]
+
+    def compose(self) -> ComposeResult:
+        yield Static("[bold cyan]Playground (Fresh IDE) Cheat Sheet[/]", id="pcs-title")
+        yield Static("[dim]Keybindings for the built-in Fresh IDE editor. Press Escape to close.[/]", id="pcs-subtitle")
+        with Vertical(id="pcs-content"):
+            yield Static("[bold yellow]General[/]", classes="section-header")
+            yield DataTable(classes="cheat-table")
+            yield Static("[bold yellow]Navigation[/]", classes="section-header")
+            yield DataTable(classes="cheat-table")
+            yield Static("[bold yellow]Editing[/]", classes="section-header")
+            yield DataTable(classes="cheat-table")
+            yield Static("[bold yellow]Multi-Cursor & Selection[/]", classes="section-header")
+            yield DataTable(classes="cheat-table")
+            yield Static("[bold yellow]Search & Replace[/]", classes="section-header")
+            yield DataTable(classes="cheat-table")
+            yield Static("[bold yellow]File Explorer[/]", classes="section-header")
+            yield DataTable(classes="cheat-table")
+            yield Static("[bold yellow]Integrated Terminal[/]", classes="section-header")
+            yield DataTable(classes="cheat-table")
+            yield Static("[bold yellow]Git[/]", classes="section-header")
+            yield DataTable(classes="cheat-table")
+            yield Static("[bold yellow]Bookmarks & Macros[/]", classes="section-header")
+            yield DataTable(classes="cheat-table")
+        yield Button("Close", id="close-pcs", variant="primary")
+
+    def on_mount(self) -> None:
+        tables = self.query(DataTable)
+        for table in tables:
+            table.add_columns("Key", "Action")
+
+        sections = [
+            [
+                ("Ctrl+P", "Command palette / file finder"),
+                ("Ctrl+S", "Save file"),
+                ("Ctrl+Z", "Undo"),
+                ("Ctrl+Y", "Redo"),
+                ("Ctrl+Shift+S", "Save as"),
+                ("Ctrl+O", "Open file"),
+                ("Ctrl+W", "Close buffer"),
+            ],
+            [
+                ("Ctrl+G", "Go to line"),
+                ("Ctrl+Home", "Go to document start"),
+                ("Ctrl+End", "Go to document end"),
+                ("Alt+Left", "Navigate back in history"),
+                ("Alt+Right", "Navigate forward in history"),
+                ("F8", "Jump to next diagnostic"),
+                ("Shift+F8", "Jump to previous diagnostic"),
+            ],
+            [
+                ("Ctrl+C", "Copy"),
+                ("Ctrl+X", "Cut"),
+                ("Ctrl+V", "Paste"),
+                ("Ctrl+L", "Select current line"),
+                ("Ctrl+A", "Select all"),
+                ("Ctrl+Z", "Undo"),
+                ("Ctrl+Y", "Redo"),
+                ("Ctrl+/", "Toggle comment"),
+                ("Ctrl+K", "Delete to end of line"),
+                ("Tab", "Indent"),
+                ("Shift+Tab", "Dedent"),
+                ("Alt+U", "Convert to uppercase"),
+                ("Alt+L", "Convert to lowercase"),
+                ("Ctrl+T", "Transpose characters"),
+                ("Ctrl+Space", "Trigger completions"),
+            ],
+            [
+                ("Ctrl+D", "Add cursor at next occurrence"),
+                ("Ctrl+Alt+Up", "Add cursor above"),
+                ("Ctrl+Alt+Down", "Add cursor below"),
+                ("Esc", "Remove secondary cursors"),
+                ("Alt+Shift+Up/Down", "Block select up/down"),
+                ("Alt+Shift+Left/Right", "Block select left/right"),
+                ("Double-click + drag", "Extend selection word-by-word"),
+            ],
+            [
+                ("Ctrl+F", "Search in buffer"),
+                ("Ctrl+R", "Replace in buffer"),
+                ("Ctrl+Alt+R", "Interactive replace (y/n/!/q)"),
+                ("F3", "Find next match"),
+                ("Shift+F3", "Find previous match"),
+                ("Alt+N / Ctrl+F3", "Find next occurrence of selection"),
+                ("Alt+P / Ctrl+Shift+F3", "Find previous occurrence of selection"),
+            ],
+            [
+                ("Ctrl+B", "Toggle file explorer sidebar"),
+                ("Ctrl+E", "Toggle focus: explorer / editor"),
+                ("Enter (on file)", "Open file in permanent tab"),
+                ("Single-click", "Open file in preview tab"),
+                ("Arrow keys", "Navigate file tree"),
+            ],
+            [
+                ("Ctrl+P > 'Open Terminal'", "Open integrated terminal"),
+                ("Ctrl+Space", "Toggle terminal / scrollback mode"),
+                ("Ctrl+]", "Exit terminal mode"),
+                ("F9", "Toggle keyboard capture mode"),
+                ("Arrow / PgUp / PgDn", "Scroll terminal output"),
+                ("Ctrl+Home", "Jump to start of scrollback"),
+                ("Ctrl+End", "Jump to end of scrollback"),
+                ("Ctrl+F", "Search through terminal output"),
+            ],
+            [
+                ('Ctrl+P > "Review Diff"', "Review working tree changes"),
+                ('Ctrl+P > "Git Log"', "View commit history"),
+                ('n / p', "Next / previous hunk in review"),
+                ('Ctrl+P > "Review: Commit Range"', "Review range of commits"),
+                ('Ctrl+P > "Review: PR Branch"', "Review PR branch commits"),
+                ("Stage / Unstage / Discard", "Hunk-level actions in review"),
+            ],
+            [
+                ("Ctrl+Shift+0-9", "Set bookmark 0-9"),
+                ("Alt+0-9", "Jump to bookmark 0-9"),
+                ("F4", "Play last recorded macro"),
+                ("F5", "Stop macro recording"),
+                ("Alt+|", "Run shell command on buffer/selection"),
+                ("Alt+Shift+|", "Run shell command, replace selection"),
+            ],
+        ]
+
+        for i, table in enumerate(tables):
+            for row in sections[i]:
+                table.add_row(*row)
+
+    def action_close(self) -> None:
+        self.app.pop_screen()
+
+    def on_button_pressed(self, event) -> None:
+        if event.button.id == "close-pcs":
+            self.action_close()
+
+
 class HelpScreen(ModalScreen):
     BINDINGS = [
         Binding("escape", "close", "Close"),
@@ -486,6 +623,7 @@ class HelpScreen(ModalScreen):
             ("Ctrl+Q", "Start quiz"),
             ("Ctrl+Shift+F", "Open flashcards"),
             ("Ctrl+T", "Open tutor dashboard"),
+            ("Ctrl+Shift+P", "Playground keybindings"),
             ("F2", "Open playground (Fresh IDE)"),
             ("F5", "Run code"),
             ("Up / Down", "Previous / Next topic"),
