@@ -42,15 +42,13 @@ Cross-Platform
 Starter Projects
 ----------------
 
-Seven phase-specific project directories are created under
-`projects/` the first time you open the playground:
+Seven hands-on projects are created under `projects/` the first time
+you open the playground. Each is a multi-file project with TODOs:
 
-- `phase-1-fundamentals/`
-- `phase-2-core-python/`
-- `phase-3-oop/`
-- `phase-4-intermediate/`
-- `phase-5-advanced/`
-- `phase-6-engineering/`
-- `phase-7-ai/`
-
-Each contains a README and starter `.py` files with TODOs.
+- **number-guessing-game/** -- guess the secret number with hints
+- **todo-list-cli/** -- command-line todo app with JSON persistence
+- **text-adventure/** -- explore a castle, find treasure, avoid traps
+- **password-toolkit/** -- generate and check password strength
+- **url-health-checker/** -- async URL status checker (uses asyncio)
+- **unit-converter/** -- CLI converter with unit tests (package structure)
+- **data-analyzer/** -- CSV analysis pipeline with sample data
