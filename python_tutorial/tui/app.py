@@ -242,27 +242,19 @@ class TutorialApp(App):
     def action_playground(self) -> None:
         from pathlib import Path
         import subprocess
-        import sys
-        import shutil
+        import os
 
-        fresh_path = shutil.which("fresh")
-        if fresh_path is None:
-            def _on_confirm(confirmed: bool):
-                if confirmed:
-                    self._install_fresh()
-            self.push_screen(
-                ConfirmScreen(
-                    "Fresh IDE Not Found",
-                    "Fresh IDE is required for the playground.\n\n"
-                    "Install it with:\n"
-                    "  curl https://raw.githubusercontent.com/sinelaw/fresh/refs/heads/master/scripts/install.sh | sh\n\n"
-                    "Or via npm:\n"
-                    "  npm install -g @fresh-editor/fresh-editor\n\n"
-                    "Install now via npx (no install needed)?",
-                    _on_confirm,
-                )
+        playground_bin = Path(__file__).resolve().parent.parent / "playground" / "playground"
+        if not playground_bin.is_file():
+            self.notify(
+                "Playground binary not found. Reinstall the package.",
+                title="Playground",
+                timeout=5,
             )
             return
+
+        if not os.access(str(playground_bin), os.X_OK):
+            playground_bin.chmod(playground_bin.stat().st_mode | 0o111)
 
         playground_dir = Path.home() / ".local" / "state" / "python-tutorial" / "playground"
         playground_dir.mkdir(parents=True, exist_ok=True)
@@ -272,20 +264,15 @@ class TutorialApp(App):
             )
 
         self.notify(
-            f"Opening Fresh IDE in {playground_dir}",
+            f"Opening Playground in {playground_dir}",
             title="Playground",
             timeout=3,
         )
         with self.suspend():
             subprocess.run(
-                ["fresh", str(playground_dir)],
+                [str(playground_bin), str(playground_dir)],
                 cwd=playground_dir,
             )
-
-    def _install_fresh(self) -> None:
-        import webbrowser
-        webbrowser.open("https://getfresh.dev/")
-        self.notify("Visit https://getfresh.dev/ for install instructions, then press F2 again.", title="Playground", timeout=5)
 
     def action_search(self) -> None:
         self.push_screen(SearchScreen(self.progress))
