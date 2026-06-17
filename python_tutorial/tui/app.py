@@ -379,39 +379,63 @@ class TutorialApp(App):
     def _seed_playground_projects(self, projects_dir: Path) -> None:
         projects_dir.mkdir(parents=True)
         starter_projects = {
-            "phase-1-fundamentals": {
-                "README.md": "# Phase 1: Python Fundamentals\n\nPractice variables, data types, conditionals, and loops.\n\n## Getting Started\n- Open hello.py and complete the exercises\n- Run with F5 in Fresh or `python hello.py` in the terminal",
-                "hello.py": "# Phase 1: Python Fundamentals\n# Practice: variables, types, conditionals, loops\n\nname = input(\"What's your name? \")\nprint(f\"Hello, {name}!\")\n\n# TODO: Ask for their age and print the year they were born\n",
+            "number-guessing-game": {
+                "README.md": "# Number Guessing Game\n\nTry to guess the secret number before you run out of tries!\n\n## Files\n- `game.py` -- main game loop (you write this)\n- `hints.py` -- generates hints based on your guess\n- `scores.py` -- tracks high scores\n\n## How to play\nRun `python game.py` and follow the prompts.",
+                "game.py": "# Number Guessing Game\n# TODO: Import hints and scores modules\n# TODO: Generate a random number between 1-100\n# TODO: Loop: ask for guess, check, give hints, track score\n# TODO: Save score when game ends\n\nprint(\"Welcome to the Number Guessing Game!\")\nprint(\"I'm thinking of a number between 1 and 100.\")\n",
+                "hints.py": "# Hint Generator\n# TODO: Write a function that returns \"too high\", \"too low\",\n#       \"getting warm\", or \"freezing\" based on the guess\n\ndef get_hint(guess: int, secret: int) -> str:\n    pass\n",
+                "scores.py": "# High Score Tracker\n# TODO: Load/save scores from a JSON file\n# TODO: Return top 5 scores formatted as a string\n\ndef save_score(name: str, guesses: int) -> None:\n    pass\n\ndef top_scores() -> str:\n    pass\n",
             },
-            "phase-2-core-python": {
-                "README.md": "# Phase 2: Core Python\n\nPractice strings, lists, dicts, functions, and error handling.\n\n## Exercises\n- Open data_types.py and complete each section\n- Test edge cases with invalid input",
-                "data_types.py": "# Phase 2: Core Python\n# Practice: strings, lists, dicts, functions\n\ndef analyze_text(text: str) -> dict:\n    \"\"\"Return word count, char count, and unique words.\"\"\"\n    # TODO: Implement this function\n    pass\n\n\n# Test your function\nsample = \"Hello world! Hello Python!\"\nprint(analyze_text(sample))\n",
+            "todo-list-cli": {
+                "README.md": "# Todo List CLI\n\nA command-line todo app with categories, priorities, and persistence.\n\n## Files\n- `todo.py` -- main menu and command loop\n- `storage.py` -- load/save todos to JSON\n- `models.py` -- Todo item data structure\n\n## Commands\nRun `python todo.py` to start.",
+                "todo.py": "# Todo List CLI\n# TODO: Display menu: add, list, complete, delete, quit\n# TODO: Read user choice and call appropriate functions\n# TODO: Load existing todos on startup\n\nfrom models import TodoItem\nfrom storage import load_todos, save_todos\n\nprint(\"=== Todo List ===\")\n",
+                "storage.py": "# JSON Storage\n# TODO: load_todos() -- read todos from a JSON file\n# TODO: save_todos(items) -- write todos to a JSON file\n# TODO: Handle file-not-found gracefully\n\nimport json\n\ndef load_todos() -> list[dict]:\n    pass\n\ndef save_todos(todos: list[dict]) -> None:\n    pass\n",
+                "models.py": "# Todo Data Model\n# TODO: Create a TodoItem dataclass with:\n#       - id, title, category, priority, done\n# TODO: Add a method to display as a formatted string\n\ndef create_todo(title: str, category: str, priority: int) -> dict:\n    pass\n",
             },
-            "phase-3-oop": {
-                "README.md": "# Phase 3: Object-Oriented Programming\n\nPractice classes, inheritance, polymorphism, and dunder methods.\n\n## Exercises\n- Open classes.py and implement the BankAccount class\n- Add a SavingsAccount subclass with interest",
-                "classes.py": "# Phase 3: OOP\n# Practice: classes, inheritance, dunder methods\n\nclass BankAccount:\n    def __init__(self, owner: str, balance: float = 0.0):\n        self.owner = owner\n        self.balance = balance\n\n    def deposit(self, amount: float) -> None:\n        # TODO: Add amount to balance\n        pass\n\n    def withdraw(self, amount: float) -> bool:\n        # TODO: Deduct amount if sufficient balance\n        pass\n\n    def __str__(self) -> str:\n        return f\"{self.owner}'s account: ${self.balance:.2f}\"\n",
+            "text-adventure": {
+                "README.md": "# Text Adventure Game\n\nExplore a mysterious castle. Find treasure, avoid traps!\n\n## Files\n- `adventure.py` -- main game loop and parser\n- `player.py` -- Player class (health, inventory, score)\n- `rooms.py` -- Room classes connected by exits\n- `items.py` -- Item classes you can find and use\n\n## How to play\nRun `python adventure.py` and type directions like `north`, `take key`.",
+                "adventure.py": "# Text Adventure Game\n# TODO: Import Player, Room, Item classes\n# TODO: Build the map of rooms\n# TODO: Main loop: parse input, move, interact\n# TODO: Win condition: find the treasure!\n\nprint(\"You wake up in a dark castle. Your goal: find the treasure!\")\nprint(\"Type 'help' for commands.\")\n",
+                "player.py": "# Player Class\n# TODO: __init__(name) -- set starting health, inventory, score\n# TODO: take(item) -- add to inventory\n# TODO: has(item) -- check inventory\n# TODO: damage(amount) -- reduce health, return alive status\n# TODO: __str__ -- show stats\n\nclass Player:\n    pass\n",
+                "rooms.py": "# Room Classes\n# TODO: Base Room class with name, description, exits, items\n# TODO: TreasureRoom subclass with win condition\n# TODO: TrapRoom subclass that damages the player\n# TODO: connect(room, direction) -- link rooms\n\nclass Room:\n    pass\n",
+                "items.py": "# Item Classes\n# TODO: Base Item class with name and description\n# TODO: Key subclass -- can unlock certain rooms\n# TODO: Potion subclass -- restores health\n# TODO: Treasure subclass -- the win condition item\n\nclass Item:\n    pass\n",
             },
-            "phase-4-intermediate": {
-                "README.md": "# Phase 4: Intermediate Python\n\nPractice decorators, generators, context managers, and itertools.\n\n## Starter\nCreate your own decorator or generator below.",
-                "intermediate.py": "# Phase 4: Intermediate Python\n# Practice: decorators, generators, context managers\n\nfrom contextlib import contextmanager\nimport time\n\n\n@contextmanager\ndef timer(label: str = \"\"):\n    # TODO: Measure and print elapsed time\n    pass\n\n\n# Test your context manager\nwith timer(\"sleep\"):\n    time.sleep(0.5)\n",
+            "password-toolkit": {
+                "README.md": "# Password Toolkit\n\nGenerate strong passwords, check their strength, and store them safely.\n\n## Files\n- `generator.py` -- generates random passwords\n- `strength.py` -- analyzes password strength\n- `vault.py` -- stores and retrieves passwords (encrypted)\n\n## Try it\nRun `python generator.py` to generate a password.",
+                "generator.py": "# Password Generator\n# TODO: Use random.choices to generate passwords\n# TODO: Support options: length, uppercase, digits, symbols\n# TODO: Add a decorator that retries until minimum strength\n\ndef generate_password(length: int = 16, use_symbols: bool = True) -> str:\n    pass\n",
+                "strength.py": "# Password Strength Checker\n# TODO: Score a password based on length, character variety\n# TODO: Return rating: weak / fair / strong / very strong\n# TODO: Give specific tips to improve weak passwords\n\ndef check_strength(password: str) -> dict:\n    pass\n",
+                "vault.py": "# Password Vault\n# TODO: Store passwords in an encrypted JSON file\n# TODO: Master password to unlock the vault\n# TODO: search(service) -- find stored passwords\n\nMASTER_HASH = \"\"\nVAULT_FILE = \"vault.json\"\n\ndef unlock(master_password: str) -> bool:\n    pass\n",
             },
-            "phase-5-advanced": {
-                "README.md": "# Phase 5: Advanced Python\n\nPractice metaclasses, descriptors, async/await, and concurrency.\n\n## Starter\nImplement an async fetcher below.",
-                "advanced.py": "# Phase 5: Advanced Python\n# Practice: async/await, concurrency\n\nimport asyncio\n\n\nasync def fetch_data(url: str) -> str:\n    # TODO: Simulate fetching data from a URL\n    await asyncio.sleep(1)\n    return f\"Data from {url}\"\n\n\nasync def main():\n    # TODO: Fetch multiple URLs concurrently\n    pass\n\n\nasyncio.run(main())\n",
+            "url-health-checker": {
+                "README.md": "# URL Health Checker\n\nAsync tool that checks multiple URLs and reports which are up or down.\n\n## Files\n- `checker.py` -- async checker using asyncio\n- `reporter.py` -- formats and displays results\n- `urls.txt` -- list of URLs to check\n\n## Try it\nRun `python checker.py` to check all URLs.",
+                "checker.py": "# Async URL Checker\n# TODO: Define an async function to check a single URL\n# TODO: Use asyncio.gather to check all URLs concurrently\n# TODO: Track response times and status codes\n\nimport asyncio\n\n# Simulated URL check (replace with real HTTP calls later)\nasync def check_url(url: str) -> dict:\n    await asyncio.sleep(0.5)\n    return {\"url\": url, \"status\": 200, \"time\": 0.5}\n\n\nasync def check_all(urls: list[str]) -> list[dict]:\n    pass\n",
+                "reporter.py": "# Result Reporter\n# TODO: Display results in a formatted table\n# TODO: Show up/down count, average response time\n# TODO: Highlight slow or failing URLs in red\n\ndef show_report(results: list[dict]) -> None:\n    pass\n",
+                "urls.txt": "# URLs to check (one per line)\nhttps://example.com\nhttps://httpbin.org/delay/1\nhttps://google.com\nhttps://github.com\nhttps://nonexistent-site-12345.com\n",
             },
-            "phase-6-engineering": {
-                "README.md": "# Phase 6: Python for Engineering\n\nPractice testing, profiling, packaging, and CLI tools.\n\n## Starter\nWrite tests and a small CLI tool.",
-                "cli_tool.py": "# Phase 6: Python for Engineering\n# Practice: CLI tools, testing\n\nimport argparse\n\n\ndef main():\n    parser = argparse.ArgumentParser(description=\"A useful CLI tool\")\n    # TODO: Add arguments\n    args = parser.parse_args()\n    print(args)\n\n\nif __name__ == \"__main__\":\n    main()\n",
+            "unit-converter": {
+                "README.md": "# Unit Converter CLI\n\nA well-tested CLI tool for converting between units.\n\n## Files\n- `converter.py` -- main CLI with argparse\n- `converters/` -- conversion functions by category\n  - `__init__.py`\n  - `temperature.py`\n  - `distance.py`\n  - `weight.py`\n- `tests/` -- unit tests\n  - `test_temperature.py`\n  - `test_distance.py`\n\n## Try it\nRun `python converter.py --help` to see available commands.",
+                "converter.py": "# Unit Converter CLI\n# TODO: Use argparse to accept: value, from-unit, to-unit\n# TODO: Import converter modules and call the right function\n# TODO: Handle errors gracefully (unknown units, invalid values)\n\nimport argparse\n\ndef main():\n    pass\n\n\nif __name__ == \"__main__\":\n    main()\n",
+                "converters/__init__.py": "from .temperature import celsius_to_fahrenheit, fahrenheit_to_celsius\nfrom .distance import km_to_miles, miles_to_km\nfrom .weight import kg_to_lbs, lbs_to_kg\n",
+                "converters/temperature.py": "# Temperature Conversions\n\ndef celsius_to_fahrenheit(c: float) -> float:\n    return (c * 9/5) + 32\n\ndef fahrenheit_to_celsius(f: float) -> float:\n    return (f - 32) * 5/9\n",
+                "converters/distance.py": "# Distance Conversions\n\ndef km_to_miles(km: float) -> float:\n    return km * 0.621371\n\ndef miles_to_km(miles: float) -> float:\n    return miles / 0.621371\n",
+                "converters/weight.py": "# Weight Conversions\n\ndef kg_to_lbs(kg: float) -> float:\n    return kg * 2.20462\n\ndef lbs_to_kg(lbs: float) -> float:\n    return lbs / 2.20462\n",
+                "tests/test_temperature.py": "# Unit Tests for Temperature\n# TODO: Write tests for celsius_to_fahrenheit and fahrenheit_to_celsius\n# TODO: Test edge cases: absolute zero, boiling, freezing\n\ndef test_celsius_to_fahrenheit():\n    pass\n",
+                "tests/test_distance.py": "# Unit Tests for Distance\n# TODO: Write tests for km_to_miles and miles_to_km\n# TODO: Test that 0 returns 0, 1 returns expected value\n\ndef test_km_to_miles():\n    pass\n",
             },
-            "phase-7-ai": {
-                "README.md": "# Phase 7: Python for AI Engineering\n\nPractice numpy, data pipelines, and ML concepts.\n\n## Starter\nImplement a simple data pipeline below.",
-                "pipeline.py": "# Phase 7: Python for AI Engineering\n# Practice: data processing pipelines\n\ndef load_data(path: str) -> list[dict]:\n    # TODO: Load data from a CSV or JSON file\n    pass\n\n\ndef clean_data(records: list[dict]) -> list[dict]:\n    # TODO: Remove invalid records, fill missing values\n    pass\n\n\ndef transform_data(records: list[dict]) -> list[dict]:\n    # TODO: Normalize fields, create derived features\n    pass\n",
+            "data-analyzer": {
+                "README.md": "# Data Analyzer\n\nLoad a CSV file, clean the data, compute statistics, and generate a report.\n\n## Files\n- `analyzer.py` -- main analysis pipeline\n- `loader.py` -- CSV loading with validation\n- `stats.py` -- statistical computations\n- `reports.py` -- text-based reports and charts\n- `data/` -- sample datasets\n  - `sales.csv`\n  - `employees.csv`\n\n## Try it\nRun `python analyzer.py data/sales.csv`.",
+                "analyzer.py": "# Data Analyzer Pipeline\n# TODO: Load CSV data\n# TODO: Clean and validate\n# TODO: Compute statistics\n# TODO: Generate a report\n\nimport sys\nfrom loader import load_csv\nfrom stats import compute_stats\nfrom reports import generate_report\n\n\ndef main():\n    if len(sys.argv) < 2:\n        print(\"Usage: python analyzer.py <csv_file>\")\n        return\n    pass\n\n\nif __name__ == \"__main__\":\n    main()\n",
+                "loader.py": "# CSV Loader\n# TODO: Load a CSV file and return rows as dicts\n# TODO: Handle missing values, wrong types\n# TODO: Validate required columns exist\n\ndef load_csv(filepath: str) -> list[dict]:\n    pass\n",
+                "stats.py": "# Statistics Module\n# TODO: Implement functions:\n#       - mean(values)\n#       - median(values)\n#       - min_max(values)\n#       - count_by_category(data, column)\n#       - top_n(data, column, n)\n\ndef mean(values: list[float]) -> float:\n    pass\n\ndef median(values: list[float]) -> float:\n    pass\n",
+                "reports.py": "# Report Generator\n# TODO: Generate a text report with:\n#       - Summary statistics\n#       - ASCII bar chart for category counts\n#       - Top N items\n\ndef generate_report(data: list[dict], stats: dict) -> str:\n    pass\n",
+                "data/sales.csv": "product,category,price,quantity\nWidget A,Gadgets,19.99,150\nWidget B,Gadgets,29.99,85\nGizmo X,Gadgets,49.99,42\nSuper Tool,Tools,89.99,30\nMini Tool,Tools,14.99,200\nAccessory Pack,Accessories,9.99,500\nPremium Kit,Kits,129.99,15\nEco Widget,Gadgets,24.99,110\n",
+                "data/employees.csv": "name,department,salary,years\nAlice,Engineering,95000,5\nBob,Marketing,72000,3\nCharlie,Engineering,110000,8\nDiana,Sales,65000,2\nEve,Engineering,105000,6\nFrank,Marketing,68000,4\nGrace,Sales,71000,3\nHenry,Engineering,120000,10\n",
             },
         }
         for project_name, files in starter_projects.items():
             project_dir = projects_dir / project_name
             project_dir.mkdir()
             for filename, content in files.items():
+                filepath = project_dir / filename
+                filepath.parent.mkdir(parents=True, exist_ok=True)
                 (project_dir / filename).write_text(content.lstrip("\n"))
 
     def action_search(self) -> None:
