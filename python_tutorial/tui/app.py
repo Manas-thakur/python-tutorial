@@ -111,9 +111,6 @@ class TutorialApp(App):
         height: auto;
     }
 
-    ContentPanel > #section-nav {
-        height: auto;
-    }
 
     #topic-nav-buttons {
         height: 3;
