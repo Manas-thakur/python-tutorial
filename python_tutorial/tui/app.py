@@ -285,9 +285,23 @@ class TutorialApp(App):
             bin_name = "playground"
         elif sys.platform == "win32":
             bin_name = "playground.exe"
+        elif sys.platform == "darwin":
+            import platform
+            arch = platform.machine()
+            if arch in ("x86_64", "amd64"):
+                bin_name = "playground-x86_64-apple-darwin"
+            elif arch in ("arm64", "aarch64"):
+                bin_name = "playground-aarch64-apple-darwin"
+            else:
+                self.notify(
+                    f"Unsupported macOS architecture: {arch}",
+                    title="Playground",
+                    timeout=5,
+                )
+                return
         else:
             self.notify(
-                "Playground is only supported on Linux and Windows.",
+                "Playground is only supported on Linux, Windows, and macOS.",
                 title="Playground",
                 timeout=5,
             )
