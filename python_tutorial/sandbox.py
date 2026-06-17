@@ -12,29 +12,101 @@ from .themes import TokyoNightStyle
 
 console = Console()
 
-BLOCKED_IMPORTS = {
-    "os", "subprocess", "shutil", "signal", "ctypes",
-    "socket", "http", "urllib", "requests",
-    "importlib", "builtins", "__builtins__",
-    "eval", "exec", "compile", "open", "file",
+# Commands blocked in the sandbox with explanations for each.
+_BLOCKED_REASONS: dict[str, str] = {
+    "open": "File access is not allowed (use print() for output)",
+    "eval": "Dynamic code execution (eval) is not allowed",
+    "exec": "Dynamic code execution (exec) is not allowed",
+    "compile": "Dynamic code execution (compile) is not allowed",
+    "os.system": "Running shell commands is not allowed",
+    "os.popen": "Running shell commands is not allowed",
+    "os.remove": "File deletion is not allowed",
+    "os.unlink": "File deletion is not allowed",
+    "os.rmdir": "Directory removal is not allowed",
+    "os.chmod": "Changing file permissions is not allowed",
+    "os.chown": "Changing file ownership is not allowed",
+    "subprocess.run": "Running subprocesses is not allowed",
+    "subprocess.Popen": "Running subprocesses is not allowed",
+    "subprocess.call": "Running subprocesses is not allowed",
+    "subprocess.check_output": "Running subprocesses is not allowed",
+    "subprocess.check_call": "Running subprocesses is not allowed",
+    "shutil.rmtree": "Destructive filesystem operations are not allowed",
+    "shutil.move": "Filesystem modification is not allowed",
+    "shutil.copy": "Writing files is not allowed",
+    "shutil.copytree": "Writing files is not allowed",
+    "ctypes.CDLL": "Loading native libraries is not allowed",
+    "ctypes.WinDLL": "Loading native libraries is not allowed",
+    "ctypes.PyDLL": "Loading native libraries is not allowed",
+    "socket.socket": "Network access is not allowed",
+    "Path.write_text": "Writing files is not allowed",
+    "Path.write_bytes": "Writing files is not allowed",
+    "Path.unlink": "File deletion is not allowed",
+    "Path.rmdir": "Directory removal is not allowed",
+    "Path.chmod": "Changing file permissions is not allowed",
 }
+
+# Prologue injected before user code in the sandbox subprocess.
+# It lets all imports through but replaces dangerous functions with
+# wrappers that raise RuntimeError with the reason from _BLOCKED_REASONS.
+_SANDBOX_PROLOGUE = """
+import builtins
+import os, subprocess, shutil, ctypes, socket
+from pathlib import Path
+
+_blocked_reasons = {
+"""
+for _name, _reason in _BLOCKED_REASONS.items():
+    _SANDBOX_PROLOGUE += f"    {_name!r}: {_reason!r},\n"
+_SANDBOX_PROLOGUE += """}
+
+def _block(name):
+    def _blocked(*args, **kwargs):
+        raise RuntimeError(f"`{name}()` blocked: " + _blocked_reasons[name])
+    _blocked.__name__ = name.split('.')[-1]
+    return _blocked
+
+builtins.open = _block("open")
+builtins.eval = _block("eval")
+builtins.exec = _block("exec")
+builtins.compile = _block("compile")
+
+for _attr in ["system", "popen", "remove", "unlink", "rmdir", "chmod", "chown"]:
+    if hasattr(os, _attr):
+        setattr(os, _attr, _block(f"os.{_attr}"))
+
+for _attr in ["run", "Popen", "call", "check_output", "check_call"]:
+    if hasattr(subprocess, _attr):
+        setattr(subprocess, _attr, _block(f"subprocess.{_attr}"))
+
+for _attr in ["rmtree", "move", "copy", "copytree"]:
+    if hasattr(shutil, _attr):
+        setattr(shutil, _attr, _block(f"shutil.{_attr}"))
+
+for _attr in ["CDLL", "WinDLL", "PyDLL"]:
+    if hasattr(ctypes, _attr):
+        setattr(ctypes, _attr, _block(f"ctypes.{_attr}"))
+
+if hasattr(socket, "socket"):
+    socket.socket = _block("socket.socket")
+
+for _attr in ["write_text", "write_bytes", "unlink", "rmdir", "chmod"]:
+    if hasattr(Path, _attr):
+        setattr(Path, _attr, _block(f"Path.{_attr}"))
+
+del _attr, _block, _blocked_reasons
+"""
+
+del _name, _reason
 
 
 def run_code(code: str, timeout: int = 5) -> dict:
-    """Execute Python code in a subprocess and return results."""
     with tempfile.TemporaryDirectory() as tmpdir:
         filepath = Path(tmpdir) / "script.py"
-        blocked_set = sorted(BLOCKED_IMPORTS)
         template = (
             "import sys, math, random, json, re, collections, itertools, string, datetime, fractions, decimal, statistics, pathlib\n"
             "from typing import List, Dict, Tuple, Optional, Union, Any\n"
-            f"_BLOCKED = {blocked_set!r}\n"
-            "_original_import = __builtins__.__import__\n"
-            "def _safe_import(name, *args, **kwargs):\n"
-            "    if name in _BLOCKED:\n"
-            '        raise ImportError(f"Import of {name!r} is not allowed in sandbox")\n'
-            "    return _original_import(name, *args, **kwargs)\n"
-            "__builtins__.__import__ = _safe_import\n\n"
+            + _SANDBOX_PROLOGUE
+            + "\n"
             + code
         )
         filepath.write_text(template)
@@ -63,11 +135,12 @@ def run_code(code: str, timeout: int = 5) -> dict:
 
 
 def sandbox_loop():
-    """Interactive code sandbox: type Python code, see results instantly."""
     console.print(Panel(
         "[bold yellow]Python Sandbox[/]\n\n"
         "Type Python code and press [bold]Ctrl+D[/] (or type [bold]exit[/]) to return to the tutorial.\n"
-        "Your code runs in a safe sandbox with [bold]math[/], [bold]random[/], [bold]json[/] and other standard modules available.",
+        "Your code runs in a safe sandbox. Commands like [bold]open()[/], [bold]os.system()[/], [bold]subprocess.run()[/], "
+        "and [bold]socket()[/] are blocked for security.\n"
+        "You can import any module freely.",
         border_style="yellow",
         title="Code Playground",
     ))
@@ -125,5 +198,4 @@ def _show_result(result: dict):
 
 
 def run_challenge_code(code: str) -> dict:
-    """Run code specifically for a challenge exercise."""
     return run_code(code, timeout=5)
