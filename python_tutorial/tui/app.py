@@ -243,8 +243,21 @@ class TutorialApp(App):
         from pathlib import Path
         import subprocess
         import os
+        import sys
 
-        playground_bin = Path(__file__).resolve().parent.parent / "playground" / "playground"
+        if sys.platform == "linux":
+            bin_name = "playground"
+        elif sys.platform == "win32":
+            bin_name = "playground.exe"
+        else:
+            self.notify(
+                "Playground is only supported on Linux and Windows.",
+                title="Playground",
+                timeout=5,
+            )
+            return
+
+        playground_bin = Path(__file__).resolve().parent.parent / "playground" / bin_name
         if not playground_bin.is_file():
             self.notify(
                 "Playground binary not found. Reinstall the package.",
