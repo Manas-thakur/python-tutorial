@@ -40,34 +40,10 @@ This clears the pip cache and forces a fresh install from the latest commit.
 ## 🚀 Quick Start
 
 ```bash
-# Launch the interactive TUI
 pytut
-
-# Or use CLI commands
-python-tutorial list           # View all phases and topics
-python-tutorial view 1 1       # Read a specific topic
-python-tutorial quiz           # Take a quiz
-python-tutorial status         # View your progress
 ```
 
-### CLI Commands
-
-| Command | Description |
-|---------|-------------|
-| `python-tutorial` | Interactive TUI (default) |
-| `list` | List all phases and topics |
-| `view <phase> <topic>` | Read a specific topic |
-| `quiz [phase]` | Take a quiz (optionally for a phase) |
-| `challenge <phase> <topic>` | Solve a coding challenge |
-| `projects` | Browse 7 project tutorials |
-| `sandbox` | Open the code playground |
-| `search <term>` | Search all content |
-| `flashcards [phase]` | Review with flashcards |
-| `status` | Show progress, level, XP, badges |
-| `badges` | Show earned badges |
-| `bookmark` | Show saved position |
-
-### TUI Keyboard Shortcuts
+### Keyboard Shortcuts
 
 | Key | Action |
 |-----|--------|
@@ -125,12 +101,12 @@ python-tutorial status         # View your progress
 
 <p align="center">
   <img src="banner/screenshot-welcome.png" alt="Welcome Screen" width="80%">
-  <br><em>CLI welcome — phase roadmap and progress overview</em>
+  <br><em>Phase roadmap and progress overview</em>
 </p>
 
 <p align="center">
   <img src="banner/screenshot-status.png" alt="Progress Status" width="80%">
-  <br><em>CLI status — detailed progress, XP level, streaks, badges</em>
+  <br><em>Progress dashboard — XP level, streaks, badges</em>
 </p>
 
 ---
@@ -233,7 +209,6 @@ pip install -e .
 
 ```
 python_tutorial/
-├── cli.py           # Typer CLI interface
 ├── content/         # 56 topic markdown files (7 phases)
 ├── projects/        # 7 project tutorial implementations
 ├── progress.py      # Progress tracking (XP, streaks, badges)
@@ -260,11 +235,8 @@ banner/             # Screenshots and banner images
 To regenerate screenshots:
 
 ```bash
-# TUI screenshots (requires DISPLAY/Xvfb for cairosvg)
+# Screenshots (requires DISPLAY/Xvfb for cairosvg)
 python3 capture_tui_screenshots.py
-
-# CLI screenshots
-python3 generate_real_screenshots.py
 
 # Banner
 python3 generate_banner.py
