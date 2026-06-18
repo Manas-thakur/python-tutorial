@@ -16,6 +16,7 @@ from .models import Phase, Topic
 from .themes import TokyoNightStyle
 from .content import (
     discover_phases,
+    discover_project_tutorials,
     get_phase,
     get_quiz_questions,
     search_content,
@@ -639,3 +640,26 @@ def bookmark():
         console.print(f"[yellow]Bookmark: Phase {bm['phase']}, Topic {bm['topic']}[/]")
     else:
         console.print("[dim]No bookmark set.[/]")
+
+
+@app.command()
+def projects():
+    """List available project tutorials."""
+    projects = discover_project_tutorials()
+    if not projects:
+        console.print("[yellow]No projects found.[/]")
+        return
+    console.print(f"\n[bold cyan]Project Tutorials[/] ({len(projects)})\n")
+    for i, p in enumerate(projects, 1):
+        done, total = progress.get_project_progress(p.slug, len(p.steps))
+        difficulty_color = {
+            "beginner": "green", "intermediate": "yellow", "advanced": "red",
+        }.get(p.difficulty, "white")
+        console.print(
+            f"  [bold]{i}. {p.title}[/]  "
+            f"[{difficulty_color}]{p.difficulty}[/]  "
+            f"[dim]Steps: {done}/{total}[/]"
+        )
+        console.print(f"     [dim]{p.description}[/]")
+        console.print(f"     [dim]Prerequisites: {', '.join(p.prerequisites)}[/]")
+        console.print()

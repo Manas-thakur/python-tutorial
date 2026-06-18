@@ -1,12 +1,22 @@
 import random
 
-from textual.screen import Screen, ModalScreen
-from textual.widgets import Static, Button, Input, ListView, ListItem, Label, RichLog, DataTable
-from textual.containers import Vertical
 from textual.app import ComposeResult
 from textual.binding import Binding
+from textual.containers import Vertical
+from textual.message import Message
+from textual.screen import ModalScreen, Screen
+from textual.widgets import (
+    Button,
+    DataTable,
+    Input,
+    Label,
+    ListItem,
+    ListView,
+    RichLog,
+    Static,
+)
 
-from ..content import discover_phases, get_quiz_questions
+from ..content import discover_phases, discover_project_tutorials, get_quiz_questions
 from ..tutor import AdaptiveTutor
 
 
@@ -474,6 +484,71 @@ class SearchScreen(Screen):
             self.action_close()
 
 
+class ProjectSelected(Message):
+    def __init__(self, project) -> None:
+        super().__init__()
+        self.project = project
+
+
+class ProjectsScreen(Screen):
+    BINDINGS = [
+        Binding("escape", "close", "Close"),
+        Binding("enter", "open_selected", "Open"),
+        Binding("f3", "close", "Close"),
+    ]
+
+    def __init__(self, progress, **kwargs):
+        super().__init__(**kwargs)
+        self.progress = progress
+
+    def compose(self) -> ComposeResult:
+        yield Static("[bold cyan]Project Tutorials[/]", id="projects-title")
+        yield Static("[dim]Step-by-step walkthroughs for building real projects. Select one to begin.[/]", id="projects-subtitle")
+        yield ListView(id="projects-list")
+        yield Button("Close", id="close-projects", variant="primary")
+
+    def on_mount(self) -> None:
+        listview = self.query_one("#projects-list", ListView)
+        projects = discover_project_tutorials()
+        for project in projects:
+            done, total = self.progress.get_project_progress(project.slug, len(project.steps))
+            pct = f"{done}/{total}"
+            difficulty_color = {
+                "beginner": "green",
+                "intermediate": "yellow",
+                "advanced": "red",
+            }.get(project.difficulty, "white")
+            lines = [
+                f"[bold]{project.title}[/]",
+                f"  [dim]{project.description}[/]",
+                f"  [bold {difficulty_color}]{project.difficulty}[/]  |  Steps: {pct}  |  Prerequisites: {', '.join(project.prerequisites)}",
+            ]
+            item = ListItem(Label("\n".join(lines)))
+            item._project = project
+            listview.append(item)
+
+    def action_open_selected(self) -> None:
+        listview = self.query_one("#projects-list", ListView)
+        if listview.index is not None and listview.index < len(listview.children):
+            item = listview.children[listview.index]
+            if hasattr(item, '_project'):
+                self.app.post_message(ProjectSelected(item._project))
+                self.app.pop_screen()
+
+    def on_list_view_selected(self, event) -> None:
+        if event.item and hasattr(event.item, '_project'):
+            event.stop()
+            self.app.post_message(ProjectSelected(event.item._project))
+            self.app.pop_screen()
+
+    def action_close(self) -> None:
+        self.app.pop_screen()
+
+    def on_button_pressed(self, event) -> None:
+        if event.button.id == "close-projects":
+            self.action_close()
+
+
 class PlaygroundCheatSheetScreen(ModalScreen):
     BINDINGS = [
         Binding("escape", "close", "Close"),
@@ -637,6 +712,7 @@ class HelpScreen(ModalScreen):
             ("Ctrl+T", "Open tutor dashboard"),
             ("Ctrl+Shift+P", "Playground keybindings"),
             ("F2", "Open playground (Fresh IDE)"),
+            ("F3", "Open project tutorials"),
             ("F5", "Run code"),
             ("Up / Down", "Previous / Next topic"),
             ("Left / Right", "Previous / Next section"),

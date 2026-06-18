@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import Optional
 
-from .models import Phase, Topic, Section, QuizQuestion
+from .models import Phase, Topic, Section, QuizQuestion, ProjectTutorial
 
 CONTENT_DIR = Path(__file__).parent / "content"
 
@@ -246,3 +246,13 @@ def get_revision_notes(topic: Topic) -> Optional[str]:
 def total_topics() -> int:
     """Return the total number of topics across all phases."""
     return sum(len(p.topics) for p in discover_phases())
+
+
+def discover_project_tutorials() -> list[ProjectTutorial]:
+    from .projects import load_all
+
+    return load_all()
+
+
+def total_projects() -> int:
+    return len(discover_project_tutorials())

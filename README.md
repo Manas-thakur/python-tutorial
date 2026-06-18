@@ -23,6 +23,7 @@ python-tutorial
 | `view <phase> <topic>` | View a specific topic |
 | `quiz [phase]` | Take a quiz (optional: specific phase) |
 | `challenge <phase> <topic>` | Do a coding challenge |
+| `projects` | Browse step-by-step project tutorials |
 | `sandbox` | Open the code playground |
 | `search <term>` | Search all content |
 | `flashcards [phase]` | Review as flashcards |
@@ -34,6 +35,7 @@ python-tutorial
 ## Features
 
 - **56 topics** across 7 phases, from basics to AI engineering
+- **7 project tutorials** -- 8-step guided walkthroughs (TUI editor, expense tracker, blog engine, chat server, task scheduler, pixel editor, API framework)
 - **Interactive reading** -- sections displayed one at a time with syntax-highlighted code
 - **Knowledge checks** -- Q&A review after each topic
 - **Coding challenges** -- 150+ exercises with expected-output validation (easy/medium/hard)
@@ -43,6 +45,7 @@ python-tutorial
 - **Progress tracking** -- saved to `~/.python_tutorial_progress.json`
 - **XP & Level system** -- earn XP for completing topics and challenges, level up
 - **Progressive unlocking** -- phases unlock at 70% completion of the previous phase
+- **Project step tracking** -- per-step progress saved, step-locked navigation
 - **Badges** -- 11+ badges for milestones, level milestones, and streaks
 - **Streaks** -- consecutive daily usage tracking
 - **Bookmark & resume** -- auto-bookmark, prompt to resume on next launch
@@ -60,6 +63,7 @@ Phase 4: Intermediate Python           (9 topics)
 Phase 5: Advanced Python               (7 topics)
 Phase 6: Python for Engineering        (6 topics)
 Phase 7: Python for AI Engineering     (7 topics)
+Projects: 7 project tutorials          (8 steps each)
 ```
 
 ## Custom Content Path
