@@ -188,6 +188,7 @@ def capture_welcome():
     from python_tutorial.progress import ProgressTracker
     
     progress = ProgressTracker()
+    progress.data = {}  # Start fresh, ignore any prior test data
     phases = discover_phases()
     
     def render(console):
@@ -205,15 +206,33 @@ def capture_status():
     from python_tutorial.content import discover_phases
     from python_tutorial.progress import ProgressTracker
     
+    # Seed progress data so the screenshot shows realistic stats
+    progress = ProgressTracker()
+    progress.data = {}
+    phases = discover_phases()
+    # Mark Phase 1 (Fundamentals, 11 topics) mostly done
+    for t_num in range(1, 10):
+        progress.data.setdefault("phase_1", {})[str(t_num)] = True
+    # Mark Phase 2 (Core Python, 8 topics) partially done
+    for t_num in range(1, 5):
+        progress.data.setdefault("phase_2", {})[str(t_num)] = True
+    # XP for level 3
+    progress.data["_xp"] = 650
+    # 5-day streak
+    from datetime import date, timedelta
+    today = date.today()
+    progress.data["_streaks"] = [(today - timedelta(days=i)).isoformat() for i in range(4, -1, -1)]
+
     def render(console):
-        # Patch renderer's console
         import python_tutorial.renderer as R
         import python_tutorial.cli as CLI
         old = R.console
-        old_cli = getattr(CLI.progress, 'console', None)
+        old_progress = CLI.progress
         R.console = console
+        CLI.progress = progress
         show_detailed_progress()
         R.console = old
+        CLI.progress = old_progress
     
     return capture_console(render, width=76, height=25, title="python-tutorial — status")
 

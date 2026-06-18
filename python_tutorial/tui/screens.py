@@ -32,7 +32,7 @@ class TutorDashboardScreen(Screen):
 
     def compose(self) -> ComposeResult:
         yield Static("", id="tutor-header")
-        yield RichLog(id="tutor-content", highlight=True, markup=True)
+        yield Static("", id="tutor-content", markup=True)
         yield Vertical(id="tutor-actions")
         yield Button("Close", id="close-tutor", variant="primary")
 
@@ -41,22 +41,19 @@ class TutorDashboardScreen(Screen):
         self._render_dashboard()
 
     def _render_dashboard(self) -> None:
-        header = self.query_one("#tutor-header", Static)
-        header.update("[bold cyan]Adaptive Learning Guide[/]")
+        self.query_one("#tutor-header", Static).update("[bold cyan]Adaptive Learning Guide[/]")
 
-        log = self.query_one("#tutor-content", RichLog)
-        log.clear()
-
+        content = self.query_one("#tutor-content", Static)
         stats = self.tutor.get_overall_stats()
-        log.write(
-            f"[bold]Overall Progress[/]\n"
-            f"  {stats['completed']}/{stats['total_topics']} topics "
-            f"({stats['completion_pct']:.0f}%)\n"
-            f"  [green]Strong[/]: {stats['strong']}  [yellow]Weak[/]: {stats['weak']}\n"
-            f"  Level {stats['level']} | {stats['xp']} XP | Streak: {stats['streak']}d\n"
-        )
+        lines = [
+            "[bold]Overall Progress[/]",
+            f"  {stats['completed']}/{stats['total_topics']} topics ({stats['completion_pct']:.0f}%)",
+            f"  [green]Strong[/]: {stats['strong']}  [yellow]Weak[/]: {stats['weak']}",
+            f"  Level {stats['level']} | {stats['xp']} XP | Streak: {stats['streak']}d",
+            "",
+            "[bold yellow]Recommended Next Actions:[/]",
+        ]
 
-        log.write("\n[bold yellow]Recommended Next Actions:[/]\n")
         if self.recommendations:
             for i, rec in enumerate(self.recommendations, 1):
                 icon = {
@@ -66,26 +63,25 @@ class TutorDashboardScreen(Screen):
                     "challenge": "\u26a1",
                     "review": "\U0001f504",
                 }.get(rec.action_type, "\u2022")
-                log.write(
+                lines.append(
                     f"  {i}. {icon} [bold]P{rec.phase}.{rec.topic}[/] "
-                    f"({rec.action_type}) - {rec.reason}\n"
+                    f"({rec.action_type}) - {rec.reason}"
                 )
         else:
-            log.write("  No recommendations yet. Keep learning!\n")
+            lines.append("  No recommendations yet. Keep learning!")
 
-        log.write("\n[bold]Phase Mastery Map:[/]\n")
+        lines.append("")
+        lines.append("[bold]Phase Mastery Map:[/]")
         for phase_num in range(1, 8):
             summary = self.tutor.get_phase_summary(phase_num)
             if not summary:
                 continue
             lock_icon = "" if summary["unlocked"] else " [red]\U0001f512[/]"
-            bar = self._make_progress_bar(
-                summary["completed"], summary["total"], 15
-            )
-            log.write(
-                f"  {summary['title']}{lock_icon}\n"
-                f"    {bar} {summary['completed']}/{summary['total']}\n"
-            )
+            bar = self._make_progress_bar(summary["completed"], summary["total"], 15)
+            lines.append(f"  {summary['title']}{lock_icon}")
+            lines.append(f"    {bar} {summary['completed']}/{summary['total']}")
+
+        content.update("\n".join(lines))
 
         actions = self.query_one("#tutor-actions", Vertical)
         actions.remove_children()

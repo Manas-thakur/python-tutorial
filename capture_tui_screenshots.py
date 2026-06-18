@@ -8,6 +8,7 @@ from pathlib import Path
 sys.path.insert(0, os.path.dirname(__file__))
 
 import cairosvg
+from python_tutorial.content import discover_phases
 
 ASSETS_DIR = os.path.join(os.path.dirname(__file__), "banner")
 os.makedirs(ASSETS_DIR, exist_ok=True)
@@ -44,21 +45,30 @@ async def capture_project_browser():
         await _capture(app, pilot, "tui-projects")
 
 
-async def capture_sidebar_open():
-    from python_tutorial.tui.app import TutorialApp
-
-    app = TutorialApp()
-    async with app.run_test(size=(90, 34)) as pilot:
-        await _capture(app, pilot, "tui-sidebar")
-
-
 async def capture_quiz():
+    """Navigate to first topic, then open quiz so questions are available."""
     from python_tutorial.tui.app import TutorialApp
 
     app = TutorialApp()
     async with app.run_test(size=(90, 34)) as pilot:
+        await asyncio.sleep(0.3)
+        phases = discover_phases()
+        if phases and phases[0].topics:
+            app._load_topic(phases[0], phases[0].topics[0])
+            await asyncio.sleep(0.2)
         await pilot.press("ctrl+q")
-        await _capture(app, pilot, "tui-quiz")
+        await _capture(app, pilot, "tui-quiz", wait=0.5)
+
+
+async def capture_tutor():
+    """Open the adaptive tutor dashboard."""
+    from python_tutorial.tui.app import TutorialApp
+
+    app = TutorialApp()
+    async with app.run_test(size=(90, 34)) as pilot:
+        await asyncio.sleep(0.3)
+        await pilot.press("ctrl+t")
+        await _capture(app, pilot, "tui-tutor", wait=0.8)
 
 
 async def capture_code_panel():
@@ -108,14 +118,14 @@ async def main():
     print("  1. Main screen...")
     await capture_main_screen()
 
-    print("  2. Sidebar (phase list)...")
-    await capture_sidebar_open()
-
-    print("  3. Project browser (F3)...")
+    print("  2. Project browser (F3)...")
     await capture_project_browser()
 
-    print("  4. Quiz screen (Ctrl+Q)...")
+    print("  3. Quiz screen (Ctrl+Q)...")
     await capture_quiz()
+
+    print("  4. Tutor dashboard (Ctrl+T)...")
+    await capture_tutor()
 
     print("  5. Code panel with code...")
     await capture_code_panel()
