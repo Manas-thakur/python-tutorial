@@ -49,3 +49,14 @@ class QuizQuestion:
     @property
     def is_mcq(self) -> bool:
         return len(self.options) > 0 and self.answer_index >= 0
+
+
+@dataclass
+class ProjectTutorial:
+    slug: str
+    title: str
+    description: str
+    difficulty: str  # "beginner", "intermediate", "advanced"
+    project_dir: str
+    steps: list[Section] = field(default_factory=list)
+    prerequisites: list[str] = field(default_factory=list)

@@ -1,8 +1,8 @@
-from textual.widgets import TextArea, Button, RichLog, Static
 from textual.widget import Widget
+from textual.widgets import Button, RichLog, Static, TextArea
 
-from ..sandbox import run_code
 from ..explainer import explain_error
+from ..sandbox import run_code
 from .themes import make_tokyo_night_theme
 
 
@@ -32,6 +32,15 @@ class CodePanel(Widget):
     def load_topic(self, topic) -> None:
         self._topic = topic
         self.query_one("#code-editor", TextArea).text = "# Write Python code here\n"
+
+    def load_project(self, project) -> None:
+        self._topic = None
+        self.query_one("#code-editor", TextArea).text = (
+            f"# Project: {project.title}\n"
+            f"# Press F2 to open this project in the Playground (Fresh IDE)\n"
+            f"# The playground projects are at:\n"
+            f"# ~/.local/state/python-tutorial/playground/projects/{project.project_dir}/\n"
+        )
 
     def run_code(self) -> None:
         editor = self.query_one("#code-editor", TextArea)

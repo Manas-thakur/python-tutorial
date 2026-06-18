@@ -1,5 +1,5 @@
-from textual.widgets import Static, ProgressBar
 from textual.containers import Container, Horizontal
+from textual.widgets import ProgressBar, Static
 
 from ..content import total_topics
 
@@ -17,7 +17,7 @@ class TutorialStatusBar(Container):
             yield Static(id="status-streak")
             yield Static(id="status-topics")
         with Horizontal(id="keybind-bar-1"):
-            yield Static("[dim]q:Quit ?:Help F2:Play Ctrl+B:Side Ctrl+F:Srch Ctrl+Q:Quiz Ctrl+Shift+F:Flash Ctrl+T:Tutor C:Cont[/]")
+            yield Static("[dim]q:Quit ?:Help F2:Play F3:Proj Ctrl+B:Side Ctrl+F:Srch Ctrl+Q:Quiz Ctrl+Shift+F:Flash Ctrl+T:Tutor C:Cont[/]")
             yield Static(id="nav-hints", markup=True)
         with Horizontal(id="keybind-bar-2"):
             yield Static("[dim]F5:Run Left:PrevS Right:NextS Up:PrevT Down:NextT[/]")

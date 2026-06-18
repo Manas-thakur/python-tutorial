@@ -255,6 +255,26 @@ class ProgressTracker:
         else:
             return "weak"
 
+    # ── Project step progress ──
+
+    def mark_project_step(self, slug: str, step_index: int):
+        key = f"_project_{slug}"
+        if key not in self.data:
+            self.data[key] = {}
+        self.data[key][str(step_index)] = True
+        self._save()
+
+    def is_project_step_complete(self, slug: str, step_index: int) -> bool:
+        return self.data.get(f"_project_{slug}", {}).get(str(step_index), False)
+
+    def get_project_progress(self, slug: str, total_steps: int) -> tuple[int, int]:
+        done = sum(
+            1
+            for k in self.data.get(f"_project_{slug}", {})
+            if self.data[f"_project_{slug}"][k]
+        )
+        return done, total_steps
+
     # ── Reset ──
 
     def reset(self):

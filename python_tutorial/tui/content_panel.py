@@ -1,10 +1,17 @@
-from textual.widgets import Static, Markdown, Button
-from textual.containers import Horizontal, VerticalScroll
 from textual.binding import Binding
+from textual.containers import Horizontal, VerticalScroll
+from textual.message import Message
+from textual.widgets import Button, Markdown, Static
 
-from ..models import Topic
 from ..content import discover_phases
+from ..models import Topic
 from .sidebar import TopicSelected
+
+
+class SectionChanged(Message):
+    def __init__(self, index: int) -> None:
+        super().__init__()
+        self.index = index
 
 
 class ContentPanel(VerticalScroll):
@@ -53,6 +60,12 @@ class ContentPanel(VerticalScroll):
         self._current_index = 0
         self._show_section()
 
+    def load_steps(self, sections: list, title: str = "") -> None:
+        self._topic = None
+        self._sections = sections
+        self._current_index = 0
+        self._show_section()
+
     def _show_section(self) -> None:
         if not self._sections:
             self.query_one("#section-heading", Static).update("No sections")
@@ -66,6 +79,7 @@ class ContentPanel(VerticalScroll):
         self.query_one("#content-markdown", Markdown).update(section.content)
         self.query_one("#prev-section", Button).disabled = self._current_index == 0
         self.query_one("#next-section", Button).disabled = self._current_index >= len(self._sections) - 1
+        self.post_message(SectionChanged(self._current_index))
 
     def action_next_section(self) -> None:
         if self._sections and self._current_index < len(self._sections) - 1:
