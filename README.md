@@ -25,6 +25,16 @@ pytut
 
 That's it. No browser, no IDE setup, no dependencies to install. Everything runs in your terminal.
 
+### Upgrading
+
+When a new version is released, update with:
+
+```bash
+pip install --no-cache-dir --force-reinstall git+https://github.com/Manas-thakur/python-tutorial.git
+```
+
+This clears the pip cache and forces a fresh install from the latest commit.
+
 ---
 
 ## 🚀 Quick Start
