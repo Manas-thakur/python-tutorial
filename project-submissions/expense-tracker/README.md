@@ -1,6 +1,6 @@
 ---
 title: Build an Expense Tracker
-author: Codédex Community
+author: Python Interactive Tutorial
 uid: expense-tracker
 datePublished: 2026-06-18
 description: A CLI expense tracker with SQLite storage, CSV import, spending analytics, and ASCII chart reports — all in pure Python.

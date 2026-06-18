@@ -1,6 +1,6 @@
 ---
 title: Build a TUI Text Editor
-author: Codédex Community
+author: Python Interactive Tutorial
 uid: tui-text-editor
 datePublished: 2026-06-18
 description: Create a terminal-based text editor from scratch with syntax highlighting, undo/redo, and file operations — all in pure Python.

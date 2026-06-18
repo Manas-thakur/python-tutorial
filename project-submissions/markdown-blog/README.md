@@ -1,6 +1,6 @@
 ---
 title: Build a Markdown Blog Engine
-author: Codédex Community
+author: Python Interactive Tutorial
 uid: markdown-blog
 datePublished: 2026-06-18
 description: Build a static site generator that converts Markdown to HTML with custom themes, a live-reload dev server, tag pages, and RSS feed generation — all in pure Python.

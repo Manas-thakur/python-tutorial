@@ -1,6 +1,6 @@
 ---
 title: Build a Chat Server & Client
-author: Codédex Community
+author: Python Interactive Tutorial
 uid: chat-server
 datePublished: 2026-06-18
 description: Build a multi-client TCP chat application with user authentication, chat rooms, private messaging, and slash commands — all powered by Python's asyncio.

@@ -1,6 +1,6 @@
-# Codédex Monthly Challenge — June 2026
+# Project Tutorials
 
-**Project Tutorial Challenge** — 7 step-by-step build-along tutorials for the [June 2026 Codédex Monthly Challenge](https://www.codedex.io/community/monthly-challenge/UXl5qgB24DBLoatPpOWP).
+7 step-by-step build-along tutorials included with the Python Interactive Tutorial.
 
 Each tutorial includes:
 - **Starter code** — skeleton files with TODO stubs to follow along
@@ -24,7 +24,7 @@ Each tutorial includes:
 ```
 project-submissions/
 ├── <project-name>/
-│   ├── README.md          # Standalone tutorial (Codédex format)
+│   ├── README.md          # Standalone tutorial
 │   ├── assets/            # Screenshots and demo captures
 │   ├── solution/          # Fully working implementation
 │   └── starter/           # TODO skeleton for following along
