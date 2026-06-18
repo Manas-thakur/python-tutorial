@@ -61,6 +61,47 @@ async def capture_quiz():
         await _capture(app, pilot, "tui-quiz")
 
 
+async def capture_code_panel():
+    """Show the CodePanel with code and running output visible."""
+    from python_tutorial.tui.app import TutorialApp
+
+    code_example = """def fibonacci(n):
+    a, b = 0, 1
+    for _ in range(n):
+        print(a, end=" ")
+        a, b = b, a + b
+    print()
+
+fibonacci(10)"""
+
+    from python_tutorial.tui.code_panel import CodePanel
+
+    app = TutorialApp()
+    async with app.run_test(size=(90, 34)) as pilot:
+        await asyncio.sleep(0.3)
+
+        code_panel = app.query_one(CodePanel)
+        editor = code_panel.query_one("#code-editor")
+        editor.text = code_example
+        editor.focus()
+        editor.cursor = (0, 0)
+
+        await asyncio.sleep(0.3)
+        await _capture(app, pilot, "tui-code-panel")
+
+    app2 = TutorialApp()
+    async with app2.run_test(size=(90, 34)) as pilot2:
+        await asyncio.sleep(0.3)
+        code_panel2 = app2.query_one(CodePanel)
+        editor2 = code_panel2.query_one("#code-editor")
+        editor2.text = code_example
+        editor2.focus()
+        await asyncio.sleep(0.2)
+        app2.action_run_code()
+        await asyncio.sleep(0.5)
+        await _capture(app2, pilot2, "tui-ide")
+
+
 async def main():
     print("Capturing TUI screenshots...")
 
@@ -75,6 +116,9 @@ async def main():
 
     print("  4. Quiz screen (Ctrl+Q)...")
     await capture_quiz()
+
+    print("  5. Code panel with code...")
+    await capture_code_panel()
 
     # Clean up SVG files
     for f in Path(ASSETS_DIR).glob("tui-*.svg"):
