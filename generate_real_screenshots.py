@@ -172,11 +172,8 @@ def capture_console(console_func, width=80, height=30, title=""):
     # Run the function with the recording console
     console_func(rec)
     
-    # Get segments
-    segments = rec._record_buffer
-    # Also try getting from export
     text_segs = list(rec._record_buffer)
-    
+
     img = render_segments_to_image(text_segs, width, height, title)
     return img
 

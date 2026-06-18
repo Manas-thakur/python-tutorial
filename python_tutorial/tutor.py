@@ -24,25 +24,6 @@ class AdaptiveTutor:
         self.progress = progress
         self.phases = discover_phases()
 
-    def get_mastery_map(self) -> dict:
-        """Return mastery status for all topics, organized by phase."""
-        result = {}
-        for phase in self.phases:
-            result[phase.number] = {
-                "title": phase.title,
-                "topics": {},
-            }
-            for topic in phase.topics:
-                level = self.progress.get_topic_mastery_level(phase.number, topic.number)
-                score = self.progress.get_mastery_score(phase.number, topic.number)
-                result[phase.number]["topics"][topic.number] = {
-                    "title": topic.title,
-                    "level": level,
-                    "score": score,
-                    "completed": self.progress.is_complete(phase.number, topic.number),
-                }
-        return result
-
     def get_next_recommendations(self, limit: int = 5) -> list[TutorRecommendation]:
         """
         Analyze progress and return top N recommendations for next action.

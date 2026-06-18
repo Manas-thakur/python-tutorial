@@ -348,10 +348,8 @@ class TutorialApp(App):
         if sandbox_code:
             open_files.insert(0, str(sandbox_file))
 
-        theme_path = Path(__file__).resolve().parent.parent / "playground" / "tokyo-night-theme.json"
         config_path = playground_dir / "playground-config.json"
         config_path.write_text(json.dumps({
-            "theme": theme_path.as_uri(),
             "keybindings": [
                 {
                     "key": "t",

@@ -50,8 +50,3 @@ def load_session() -> SessionState:
         return SessionState()
 
 
-def clear_session() -> None:
-    try:
-        STATE_FILE.unlink(missing_ok=True)
-    except OSError:
-        pass

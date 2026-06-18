@@ -51,7 +51,3 @@ def run_quiz(questions: list[QuizQuestion]) -> tuple[int, int]:
     return correct, total
 
 
-def run_quiz_for_topic(topic, content_getter) -> tuple[int, int]:
-    """Get quiz questions for a topic and run quiz."""
-    questions = content_getter(topic)
-    return run_quiz(questions)

@@ -20,7 +20,3 @@ _ALL_PROJECTS: dict[str, ProjectTutorial] = {
 
 def load_all() -> list[ProjectTutorial]:
     return list(_ALL_PROJECTS.values())
-
-
-def get(slug: str) -> ProjectTutorial | None:
-    return _ALL_PROJECTS.get(slug)

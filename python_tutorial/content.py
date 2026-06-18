@@ -200,15 +200,6 @@ def get_phase(number: int, content_dir: Optional[Path] = None) -> Optional[Phase
     return None
 
 
-def get_topic(phase_number: int, topic_number: int, content_dir: Optional[Path] = None) -> Optional[Topic]:
-    phase = get_phase(phase_number, content_dir)
-    if not phase:
-        return None
-    if topic_number < 1 or topic_number > len(phase.topics):
-        return None
-    return phase.topics[topic_number - 1]
-
-
 def get_quiz_questions(topic: Topic) -> list[QuizQuestion]:
     for s in topic.sections:
         if s.heading.lower().strip() == "knowledge check":
@@ -254,5 +245,3 @@ def discover_project_tutorials() -> list[ProjectTutorial]:
     return load_all()
 
 
-def total_projects() -> int:
-    return len(discover_project_tutorials())
