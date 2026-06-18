@@ -17,7 +17,7 @@ class TutorialStatusBar(Container):
             yield Static(id="status-streak")
             yield Static(id="status-topics")
         with Horizontal(id="keybind-bar-1"):
-            yield Static("[dim]q:Quit ?:Help F2:Play F3:Proj Ctrl+B:Side Ctrl+F:Srch Ctrl+Q:Quiz Ctrl+Shift+F:Flash Ctrl+T:Tutor C:Cont[/]")
+            yield Static("[dim]q:Quit ?:Help F2:Play F3:Proj Ctrl+B:Side Ctrl+F:Srch Ctrl+P:Cmd Ctrl+Q:Quiz Ctrl+Shift+F:Flash Ctrl+T:Tutor C:Cont[/]")
             yield Static(id="nav-hints", markup=True)
         with Horizontal(id="keybind-bar-2"):
             yield Static("[dim]F5:Run Left:PrevS Right:NextS Up:PrevT Down:NextT[/]")
@@ -41,14 +41,17 @@ class TutorialStatusBar(Container):
         streak_text = f"Streak {streak}d" if streak else ""
         self.query_one("#status-streak", Static).update(streak_text)
 
-    def update_nav(self, has_prev: bool, has_next: bool) -> None:
+    def update_nav(self, has_prev: bool, has_next: bool, project_mode: bool = False) -> None:
         hints = self.query_one("#nav-hints", Static)
         parts = []
-        if has_prev:
-            parts.append("[dim]Up:PrevT[/]")
-        if has_next:
-            parts.append("[dim]Down:NextT[/]")
-        parts.append("[dim]Left:PrevS Right:NextS[/]")
+        if project_mode:
+            parts.append("[dim]Left:PrevS Right:NextS[/]")
+        else:
+            if has_prev:
+                parts.append("[dim]Up:PrevT[/]")
+            if has_next:
+                parts.append("[dim]Down:NextT[/]")
+            parts.append("[dim]Left:PrevS Right:NextS[/]")
         hints.update(" ".join(parts))
 
     def refresh(self, **kwargs):

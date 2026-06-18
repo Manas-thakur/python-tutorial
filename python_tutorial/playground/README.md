@@ -10,8 +10,8 @@ Getting Started
 When you open the playground, you'll see:
 
 - **main.py** -- default file for your project code
-- **sandbox-code.py** -- your current sandbox code (auto-synced)
-- **projects/** -- phase-specific starter projects (created on first launch)
+- **README.md** -- this guide (also available in the playground)
+- **projects/** -- starter projects for all 7 tutorial projects (created on first launch)
 
 Theme
 -----

@@ -181,7 +181,7 @@ def discover_phases(content_dir: Optional[Path] = None) -> list[Phase]:
             num = 0
         title = parts[1] if len(parts) > 1 else d.name
         phase = Phase(number=num, title=title, path=d)
-        md_files = sorted(d.glob("*.md"))
+        md_files = sorted(d.glob("*.md"), key=lambda f: int(f.stem.split(". ")[0]))
         for i, f in enumerate(md_files, start=1):
             name_parts = f.stem.split(". ", 1)
             topic_title = name_parts[1] if len(name_parts) > 1 else f.stem

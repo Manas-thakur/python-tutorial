@@ -208,6 +208,7 @@ class TutorialApp(App):
         Binding("ctrl+q", "quiz", "Quiz", show=True),
         Binding("ctrl+shift+f", "flashcards", "Flashcards", show=True),
         Binding("ctrl+t", "tutor", "Tutor", show=True),
+        Binding("ctrl+p", "playground_cheatsheet", "Cmd Pal", show=True),
         Binding("ctrl+shift+p", "playground_cheatsheet", "Play Keys", show=True),
         Binding("ctrl+b", "toggle_sidebar", "Sidebar", show=True),
         Binding("c", "toggle_content_panel", "Contents", show=True),
@@ -283,7 +284,6 @@ class TutorialApp(App):
         import subprocess
         import os
         import sys
-        import json
 
         if sys.platform == "linux":
             bin_name = "playground"
@@ -335,29 +335,42 @@ class TutorialApp(App):
                 "# Python Playground\n# Write your project code here\n\nprint('Hello from Playground!')\n"
             )
 
-        sandbox_file = playground_dir / "sandbox-code.py"
-        code_panel = self.query_one(CodePanel)
-        try:
-            sandbox_code = code_panel.query_one("#code-editor").text.strip()
-        except Exception:
-            sandbox_code = ""
-        if sandbox_code:
-            sandbox_file.write_text(sandbox_code)
-
-        open_files = [str(playground_dir / "main.py")]
-        if sandbox_code:
-            open_files.insert(0, str(sandbox_file))
-
-        config_path = playground_dir / "playground-config.json"
-        config_path.write_text(json.dumps({
-            "keybindings": [
-                {
-                    "key": "t",
-                    "modifiers": ["ctrl", "shift"],
-                    "action": "quit",
-                },
-            ],
-        }))
+        if not (playground_dir / "README.md").is_file():
+            (playground_dir / "README.md").write_text(
+                "# Playground \u2014 Fresh IDE\n\n"
+                "A full terminal-based code editor built into the Python Tutorial.\n\n"
+                "## Opening Files\n"
+                "- Use **Ctrl+P** to open the command palette\n"
+                '- Type a filename (e.g. `main.py`, `server.py`) and press Enter\n'
+                "- Files are organized in the `projects/` directory\n\n"
+                "## Editing\n"
+                "- Standard text editing with mouse support\n"
+                "- Syntax highlighting for Python (TokyoNight theme)\n"
+                "- Multiple cursors: **Ctrl+Click** or **Alt+Click**\n"
+                "- Undo: **Ctrl+Z**  |  Redo: **Ctrl+Y**\n"
+                "- Find: **Ctrl+F**  |  Replace: **Ctrl+H**\n\n"
+                "## Terminal\n"
+                "- Open an integrated terminal: **Ctrl+P > 'Open Terminal'**\n"
+                "- Run your code: `python main.py`\n"
+                "- The terminal starts in the playground directory\n\n"
+                "## Git Integration\n"
+                "- **Ctrl+P > 'Git Log'** \u2014 view commit history\n"
+                '- **Ctrl+P > "Review Diff"** \u2014 review working tree changes\n'
+                '- **Ctrl+P > "Review: Commit Range"** \u2014 review a range of commits\n\n'
+                "## Projects\n"
+                "The `projects/` folder contains starter scaffolds for all 7 tutorial projects:\n"
+                "- **expense-tracker/** \u2014 CLI expense tracker with SQLite\n"
+                "- **tui-text-editor/** \u2014 terminal text editor from scratch\n"
+                "- **markdown-blog/** \u2014 static site generator\n"
+                "- **chat-server/** \u2014 async chat server & client\n"
+                "- **pixel-editor/** \u2014 terminal pixel art editor\n"
+                "- **task-scheduler/** \u2014 cron-like task scheduler\n"
+                "- **api-framework/** \u2014 minimal web API framework\n\n"
+                "Each project has a README with instructions and TODO comments to guide you.\n\n"
+                "## Returning to the Tutorial\n"
+                "- Press **Ctrl+Shift+T** to exit the playground and return to the tutorial\n"
+                "- All your files are preserved on disk\n"
+            )
 
         self.notify(
             f"Opening Playground in {playground_dir}",
@@ -366,17 +379,9 @@ class TutorialApp(App):
         )
         with self.suspend():
             subprocess.run(
-                [str(playground_bin), "--config", str(config_path), *open_files],
+                [str(playground_bin)],
                 cwd=playground_dir,
             )
-
-        if sandbox_file.is_file():
-            fresh_code = sandbox_file.read_text().strip()
-            if fresh_code and fresh_code != sandbox_code:
-                try:
-                    code_panel.query_one("#code-editor").text = fresh_code
-                except Exception:
-                    pass
 
     def _seed_playground_projects(self, projects_dir: Path) -> None:
         projects_dir.mkdir(parents=True)
@@ -509,7 +514,14 @@ class TutorialApp(App):
         self.current_project = project
         self.current_project_step = 0
         self._project_mode = True
-        self.query_one(ContentPanel).load_steps(project.steps, project.title)
+        done, total = self.progress.get_project_progress(project.slug, len(project.steps))
+        info = {
+            "title": project.title,
+            "difficulty": project.difficulty,
+            "done": done,
+            "total": total,
+        }
+        self.query_one(ContentPanel).load_steps(project.steps, project.title, project_info=info)
         self.query_one(CodePanel).load_project(project)
         self.progress.mark_project_step(project.slug, 0)
         self.query_one(TutorialStatusBar).refresh()
@@ -522,6 +534,11 @@ class TutorialApp(App):
             self.current_project_step = idx
             if idx > prev_step:
                 self.progress.mark_project_step(self.current_project.slug, idx)
+            done, total = self.progress.get_project_progress(
+                self.current_project.slug, len(self.current_project.steps)
+            )
+            panel = self.query_one(ContentPanel)
+            panel.update_project_header(done, total, self.current_project.difficulty)
             self.query_one(TutorialStatusBar).refresh()
 
     def action_reset_progress(self) -> None:
@@ -552,10 +569,16 @@ class TutorialApp(App):
         self._update_nav_hints()
 
     def _update_nav_hints(self) -> None:
-        panel = self.query_one(ContentPanel)
-        has_prev = panel._get_sibling_topic(-1) is not None
-        has_next = panel._get_sibling_topic(1) is not None
-        self.query_one(TutorialStatusBar).update_nav(has_prev, has_next)
+        if self._project_mode:
+            sections = self.current_project.steps if self.current_project else []
+            idx = self.current_project_step
+            has_prev = idx > 0
+            has_next = idx < len(sections) - 1
+        else:
+            panel = self.query_one(ContentPanel)
+            has_prev = panel._get_sibling_topic(-1) is not None
+            has_next = panel._get_sibling_topic(1) is not None
+        self.query_one(TutorialStatusBar).update_nav(has_prev, has_next, self._project_mode)
 
 
 def main():

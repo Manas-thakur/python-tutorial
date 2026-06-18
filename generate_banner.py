@@ -1,22 +1,11 @@
-"""Generate a 1200x630 GitHub social preview banner — brutalist space theme."""
+"""Generate a 1200x630 GitHub social preview banner."""
 
-import math
-import random
-from PIL import Image, ImageDraw, ImageFont, ImageFilter
+from PIL import Image, ImageDraw, ImageFont
 import os
 
 W, H = 1200, 630
 FONT = "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf"
 FONT_BOLD = "/usr/share/fonts/truetype/liberation/LiberationMono-Bold.ttf"
-
-random.seed(42)
-
-BG = (4, 4, 14)
-ACCENT = (255, 100, 80)
-GREEN = (120, 220, 140)
-DIM = (80, 90, 140)
-FG = (200, 210, 240)
-DARK_BG = (10, 12, 28)
 
 
 def get_font(path, size):
@@ -26,117 +15,79 @@ def get_font(path, size):
         return ImageFont.load_default()
 
 
-def draw_stars(draw, count=200):
-    for _ in range(count):
-        x = random.randint(0, W)
-        y = random.randint(0, H)
-        r = random.choice([1, 1, 1, 1.5, 1.5, 2])
-        bright = random.uniform(0.4, 1.0)
-        base = random.choice([
-            (180, 190, 220), (200, 210, 240), (220, 230, 255), (140, 160, 200)
-        ])
-        c = tuple(int(ch * bright) for ch in base)
-        draw.ellipse([x - r, y - r, x + r, y + r], fill=c)
-
-
-def make_glow(size, ellipses):
-    img = Image.new("RGBA", size, (0, 0, 0, 0))
-    draw = ImageDraw.Draw(img)
-    for box, color in ellipses:
-        draw.ellipse(box, fill=color)
-    return img.filter(ImageFilter.GaussianBlur(60))
-
-
 def draw():
-    img = Image.new("RGBA", (W, H), BG)
+    BG = (18, 22, 40)
+    CARD = (30, 35, 55)
+    RED = (220, 50, 40)
+    GREEN = (50, 220, 100)
+    WHITE = (255, 255, 255)
+    MUTED = (155, 165, 200)
+
+    img = Image.new("RGB", (W, H), BG)
     draw = ImageDraw.Draw(img)
 
-    # Stars
-    draw_stars(draw, 220)
+    # Top bar
+    draw.rectangle([0, 0, W, 6], fill=RED)
 
-    # Nebula glow layers
-    glow = make_glow((W, H), [
-        ((-200, 100, 600, 600), (60, 30, 120, 30)),
-        ((700, -100, 1300, 500), (100, 30, 60, 25)),
-        ((300, 400, 900, 700), (30, 60, 120, 20)),
-    ])
-    img = Image.alpha_composite(img, glow)
-    draw = ImageDraw.Draw(img)
+    # Title — huge
+    tf = get_font(FONT_BOLD, 78)
+    title = "PYTHON TUTORIAL"
+    tw = draw.textlength(title, font=tf)
+    draw.text(((W - tw) / 2, 90), title, fill=WHITE, font=tf)
+
+    # Subtitle
+    sf = get_font(FONT, 24)
+    sub = "56 topics  |  150+ challenges  |  7 projects  |  built-in IDE"
+    sw = draw.textlength(sub, font=sf)
+    draw.text(((W - sw) / 2, 200), sub, fill=MUTED, font=sf)
+
+    # Feature boxes
+    boxes = [
+        ("LEARN", "56 guided topics\nacross 7 phases"),
+        ("PRACTICE", "Coding challenges,\nquizzes & flashcards"),
+        ("BUILD", "7 real projects\nwith step-by-step guides"),
+    ]
+
+    bw, bh = 310, 140
+    gap = 35
+    total = 3 * bw + 2 * gap
+    sx = (W - total) / 2
+    sy = 270
+
+    for i, (title, desc) in enumerate(boxes):
+        x = sx + i * (bw + gap)
+        draw.rectangle([x, sy, x + bw, sy + bh], fill=CARD, outline=(50, 56, 80))
+
+        # Number
+        nf = get_font(FONT_BOLD, 26)
+        lw = draw.textlength(title, font=nf)
+        draw.text((x + (bw - lw) / 2, sy + 18), title, fill=RED, font=nf)
+
+        # Description
+        df = get_font(FONT, 17)
+        for j, line in enumerate(desc.split("\n")):
+            dw = draw.textlength(line, font=df)
+            draw.text((x + (bw - dw) / 2, sy + 58 + j * 26), line, fill=MUTED, font=df)
 
     # Bottom bar
-    draw.rectangle([0, H - 80, W, H], fill=DARK_BG)
-    draw.rectangle([0, H - 82, W, H - 78], fill=ACCENT)
+    draw.rectangle([0, H - 72, W, H], fill=(0, 0, 0))
+    draw.rectangle([0, H - 72, W, H - 70], fill=RED)
 
-    # Top accent line
-    draw.rectangle([0, 0, W, 4], fill=ACCENT)
-
-    # Terminal character blocks
-    chars = [(">>", 0), ("$_", 1), ("#!", 0), ("<>", 1), ("[]", 0), ("{}", 1), ("()", 0)]
-    for i, (ch, parity) in enumerate(chars):
-        bx = 50 + i * 158
-        by = 50
-        draw.rectangle([bx, by, bx + 128, by + 46], fill=DARK_BG, outline=(30, 35, 60))
-        f = get_font(FONT_BOLD, 26)
-        draw.text((bx + 12, by + 8), ch, fill=ACCENT if parity == 0 else GREEN, font=f)
-
-    # Title
-    t1 = get_font(FONT_BOLD, 64)
-    t2 = get_font(FONT_BOLD, 38)
-
-    title = "PYTHON"
-    tw = draw.textlength(title, font=t1)
-    draw.text(((W - tw) / 2, 135), title, fill=FG, font=t1)
-
-    subtitle = "INTERACTIVE TUTORIAL"
-    sw = draw.textlength(subtitle, font=t2)
-    draw.text(((W - sw) / 2, 210), subtitle, fill=ACCENT, font=t2)
-
-    # Tagline
-    tag_f = get_font(FONT, 20)
-    tag = "LEARN. PRACTICE. EXPERIMENT. BUILD. — ALL IN YOUR TERMINAL"
-    tw = draw.textlength(tag, font=tag_f)
-    draw.text(((W - tw) / 2, 270), tag, fill=DIM, font=tag_f)
-
-    # Stats boxes
-    boxes = [
-        ("56 TOPICS", "7 phases"),
-        ("150+ CHALLENGES", "validated exercises"),
-        ("7 PROJECTS", "step-by-step builds"),
-        ("FRESH IDE", "built-in playground"),
-    ]
-    bx_w = 260
-    bx_h = 60
-    bx_gap = 24
-    total_w = len(boxes) * bx_w + (len(boxes) - 1) * bx_gap
-    start_x = (W - total_w) / 2
-    by = 320
-
-    for i, (label, desc) in enumerate(boxes):
-        bx = start_x + i * (bx_w + bx_gap)
-        draw.rectangle([bx, by, bx + bx_w, by + bx_h], fill=DARK_BG, outline=(30, 35, 60))
-        lf = get_font(FONT_BOLD, 17)
-        df = get_font(FONT, 13)
-        draw.text((bx + 14, by + 8), label, fill=GREEN, font=lf)
-        draw.text((bx + 14, by + 34), desc, fill=DIM, font=df)
-
-    # Install command
-    py = H - 58
-    prompt = "$  pip install git+https://github.com/Manas-thakur/python-tutorial.git"
     pf = get_font(FONT, 18)
-    draw.text((38, py), prompt, fill=GREEN, font=pf)
-    cx = 40 + int(draw.textlength(prompt, font=pf))
-    draw.rectangle([cx, py + 2, cx + 10, py + 20], fill=ACCENT)
+    prompt = "$ pip install git+https://github.com/Manas-thakur/python-tutorial.git"
+    draw.text((30, H - 56), prompt, fill=GREEN, font=pf)
 
-    # Bottom-right tag
-    tf = get_font(FONT_BOLD, 22)
-    tag_s = "pytut"
-    tlx = draw.textlength(tag_s, font=tf)
-    draw.text((W - tlx - 30, H - 62), tag_s, fill=DIM, font=tf)
+    cx = 32 + int(draw.textlength(prompt, font=pf))
+    draw.rectangle([cx, H - 52, cx + 10, H - 36], fill=WHITE)
 
-    img = img.convert("RGB")
+    pf2 = get_font(FONT_BOLD, 22)
+    tag = ">>> pytut"
+    pw = draw.textlength(tag, font=pf2)
+    draw.text((W - pw - 28, H - 64), tag, fill=(80, 85, 110), font=pf2)
+
     out = os.path.join(os.path.dirname(__file__), "banner", "banner.png")
     os.makedirs(os.path.dirname(out), exist_ok=True)
-    img.save(out)
+    img.save(out, quality=95)
     print(f"Generated {out} ({W}x{H})")
 
 

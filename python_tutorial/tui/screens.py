@@ -503,21 +503,29 @@ class ProjectsScreen(Screen):
         yield ListView(id="projects-list")
         yield Button("Close", id="close-projects", variant="primary")
 
+    def _make_progress_bar(self, done: int, total: int, width: int = 18) -> str:
+        fill = int(width * done / total) if total > 0 else 0
+        empty = width - fill
+        bar = "█" * fill + "░" * empty
+        pct = f"{done}/{total}"
+        return f"[green]{bar}[/] {pct}"
+
     def on_mount(self) -> None:
         listview = self.query_one("#projects-list", ListView)
         projects = discover_project_tutorials()
         for project in projects:
             done, total = self.progress.get_project_progress(project.slug, len(project.steps))
-            pct = f"{done}/{total}"
             difficulty_color = {
                 "beginner": "green",
                 "intermediate": "yellow",
                 "advanced": "red",
             }.get(project.difficulty, "white")
+            bar = self._make_progress_bar(done, total)
+            prereqs = ", ".join(project.prerequisites) if project.prerequisites else "None"
             lines = [
-                f"[bold]{project.title}[/]",
+                f"[bold white]{project.title}[/]",
                 f"  [dim]{project.description}[/]",
-                f"  [bold {difficulty_color}]{project.difficulty}[/]  |  Steps: {pct}  |  Prerequisites: {', '.join(project.prerequisites)}",
+                f"  [{difficulty_color}]■ {project.difficulty.upper()}[/]  |  {bar}  |  [dim]prerequisites: {prereqs}[/]",
             ]
             item = ListItem(Label("\n".join(lines)))
             item._project = project
@@ -706,6 +714,7 @@ class HelpScreen(ModalScreen):
             ("Ctrl+Q", "Start quiz"),
             ("Ctrl+Shift+F", "Open flashcards"),
             ("Ctrl+T", "Open tutor dashboard"),
+            ("Ctrl+P", "Command palette"),
             ("Ctrl+Shift+P", "Playground keybindings"),
             ("F2", "Open playground (Fresh IDE)"),
             ("F3", "Open project tutorials"),
