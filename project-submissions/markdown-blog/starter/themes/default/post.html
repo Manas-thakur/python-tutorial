@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} - {{ site_name }}{% endblock %}
+{% block content %}
+<article class="post">
+    <header class="post-header">
+        <h2>{{ title }}</h2>
+        <p class="meta">
+            <time datetime="{{ date }}">{{ date }}</time>
+            {% if tags %}
+            &middot;
+            {% for tag in tags.split(",") %}
+            <a href="/tags/{{ tag.strip() }}.html" class="tag">{{ tag.strip() }}</a>
+            {% endfor %}
+            {% endif %}
+        </p>
+    </header>
+    <div class="content">
+        {{ body|safe }}
+    </div>
+</article>
+{% endblock %}

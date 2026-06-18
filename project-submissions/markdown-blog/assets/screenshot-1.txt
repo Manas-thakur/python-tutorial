@@ -1,0 +1,9 @@
+Frontmatter: {'title': 'Hello World', 'date': '2025-01-15', 'tags': 'python, tutorial'}
+HTML output:
+<h1>Hello World</h1>
+
+<p>This is a <strong>Markdown</strong> blog post.</p>
+
+<pre><code class="language-python">
+print('hello')
+</code></pre>

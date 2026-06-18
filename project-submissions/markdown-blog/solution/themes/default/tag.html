@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Tag: {{ tag }} - {{ site_name }}{% endblock %}
+{% block content %}
+<section class="tag-page">
+    <h2>Posts tagged: <span class="tag">{{ tag }}</span></h2>
+    {% if posts %}
+    <ul>
+        {% for post in posts %}
+        <li class="post-item">
+            <h3><a href="/{{ post.slug }}/">{{ post.title }}</a></h3>
+            <p class="meta"><time datetime="{{ post.date }}">{{ post.date }}</time></p>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p>No posts with this tag.</p>
+    {% endif %}
+    <p><a href="/tags/">All Tags</a></p>
+</section>
+{% endblock %}

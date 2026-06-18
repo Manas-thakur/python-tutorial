@@ -1,0 +1,6 @@
+# No external dependencies — uses only Python standard library
+# - sqlite3 (built-in) for database
+# - argparse (built-in) for CLI
+# - csv (built-in) for CSV parsing
+# - dataclasses (built-in) for data models
+# - decimal (built-in) for precise monetary calculations

@@ -1,0 +1,22 @@
+Pixel Grid: 16x16
+  Pixel(0,0): #ff0000
+  Pixel(15,15): #0000ff
+  Pixel(7,7): #00ff00
+ANSI export (first 300 chars):
+[48;2;255;0;0m [0m               
+                
+                
+                
+                
+                
+                
+       [48;2;0;255;0m [0m        
+                
+                
+                
+                
+                
+                
+                
+       
+Pixel Editor: OK

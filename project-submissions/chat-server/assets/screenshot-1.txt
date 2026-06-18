@@ -1,0 +1,5 @@
+=== Chat Protocol Demo ===
+Original: Message(type='MSG', sender='alice', room='general', body='Hello everyone!', timestamp='2025-01-15T10:00:00')
+Encoded: b'{"type":"MSG","sender":"alice","room":"general","body":"Hello everyone!","ts":"2025-01-15T10:00:00"}\n'
+Decoded: Message(type='MSG', sender='alice', room='general', body='Hello everyone!', timestamp='2025-01-15T10:00:00')
+Round-trip: OK

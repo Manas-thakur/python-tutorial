@@ -1,0 +1,3 @@
+API Framework: Routes registered
+  GET /hello/:name  → hello()
+  GET /api/todos    → list_todos()

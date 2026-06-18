@@ -72,6 +72,22 @@ Projects: 7 project tutorials          (8 steps each)
 python-tutorial --content-dir /path/to/your/content
 ```
 
+## Project Tutorials (Codédex Submission)
+
+Standalone step-by-step tutorials for building real projects from scratch. Each includes a starter skeleton and fully working solution:
+
+| Project | Difficulty | README |
+|---------|-----------|--------|
+| TUI Text Editor | intermediate | [Read](./project-submissions/tui-text-editor/README.md) |
+| Expense Tracker | beginner | [Read](./project-submissions/expense-tracker/README.md) |
+| Markdown Blog Engine | intermediate | [Read](./project-submissions/markdown-blog/README.md) |
+| Chat Server & Client | intermediate | [Read](./project-submissions/chat-server/README.md) |
+| Task Scheduler | advanced | [Read](./project-submissions/task-scheduler/README.md) |
+| Pixel Art Editor | intermediate | [Read](./project-submissions/pixel-editor/README.md) |
+| API Framework | advanced | [Read](./project-submissions/api-framework/README.md) |
+
+To run any project's solution: `cd project-submissions/<name>/solution && python <main_file>.py`
+
 ## Development
 
 ```bash

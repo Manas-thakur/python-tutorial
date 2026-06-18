@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Tags - {{ site_name }}{% endblock %}
+{% block content %}
+<section class="tags-index">
+    <h2>All Tags</h2>
+    {% if tags %}
+    <ul class="tag-cloud">
+        {% for tag in tags %}
+        <li>
+            <a href="/tags/{{ tag.name }}.html" class="tag">{{ tag.name }}</a>
+            <span class="tag-count">({{ tag.count }})</span>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p>No tags yet.</p>
+    {% endif %}
+</section>
+{% endblock %}
